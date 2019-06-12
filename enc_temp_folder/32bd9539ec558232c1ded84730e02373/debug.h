@@ -9,8 +9,8 @@ namespace tools
 {
 	inline void DubugPoint(const UWorld* world, const FVector& pos, const FColor& color, const FString& text)
 	{
-		DrawDebugPoint(world, pos, 15.0f, color, false, 0.01f);
-		DrawDebugString(world, pos + FVector{ 0.0f, 0.0f, 30.0f }, text, nullptr, color, 0.01f);
+		DrawDebugPoint(world, pos, 15.0f, color, false, 0.1f);
+		DrawDebugString(world, pos + FVector{ 0.0f, 0.0f, 30.0f }, text, nullptr, color, 0.1f);
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, color, text + " " + pos.ToString());
 	}
 }

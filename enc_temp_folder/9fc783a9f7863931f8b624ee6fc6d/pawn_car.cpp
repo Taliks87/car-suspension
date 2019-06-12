@@ -9,7 +9,7 @@
 // Sets default values
 APawnCar::APawnCar()
 	: mesh_body(CreateDefaultSubobject<UStaticMeshComponent>("mesh_body"))
-	, mass(1300.0f)
+	, mass(100.0f)
 	, weightDistribution(0.7f)
 	, suspensions(TArray<USuspension*>({ CreateDefaultSubobject<USuspension>("front_suspension"), CreateDefaultSubobject<USuspension>("rear_suspension") }))
 {

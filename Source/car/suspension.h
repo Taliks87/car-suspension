@@ -2,14 +2,13 @@
 
 #pragma once
 
-#include <functional>
+#include "tools/tools_car.h"
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
 #include "suspension.generated.h"
 
 class USuspensionSide;
-using FuncForce = std::function<void(FVector, FVector, FName)>;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class CAR_API USuspension : public USceneComponent
@@ -19,15 +18,21 @@ class CAR_API USuspension : public USceneComponent
 public:	
 	// Sets default values for this component's properties
 	USuspension();
-
-	void init(const FuncForce& funcAddForceAtbody);
+	void Init(const tools::FuncForce& funcAddForceAtbody);
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
 	
+public:		
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;		
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-	float trackWidth;
+		float trackWidth;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-	float relaxDamperLength;
+		float relaxDamperLength;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-	float springMove;
+		float springMove;
 	//stiffness can by calculate (G*r^4)/(4*n*R^3)
 	//G - shear modulus (mPa) 78500 mPa
 	//n - number of turns 5
@@ -35,30 +40,18 @@ public:
 	//R - coil radius (mm) 66 mm
 	//stiffness - H/mm (for UE4 need convert H/sm)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-	float stiffness;
+		float stiffness;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-	float damper;
+		float damper;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-	float wheelRadius;
+		float wheelRadius;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-	float wheelWidth;
+		float wheelWidth;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-	float kpiAngle;
+		float kpiAngle;
 
 	UPROPERTY(EditAnywhere)
-	USuspensionSide* leftBlock;
-	/*
+		USuspensionSide* leftBlock;	
 	UPROPERTY(EditAnywhere)
-	USuspensionSide* right;
-*/
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-	
-public:		
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
-	void refreshBlock(float DeltaTime, USuspensionSide* suspSide);
-private:
-	FuncForce addForceAtbody;
+		USuspensionSide* rightBlock;
 };

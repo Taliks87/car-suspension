@@ -33,7 +33,7 @@ void USuspensionSide::BeginPlay()
 	scene_damperPointBot->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	mesh_wheel->AttachToComponent(scene_damperPointBot, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	scene_wheelCenter->AttachToComponent(mesh_wheel, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	scene_botPoint->AttachToComponent(scene_damperPointBot, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	scene_botPoint->AttachToComponent(scene_wheelCenter, FAttachmentTransformRules::SnapToTargetIncludingScale);
 
 	Super::BeginPlay();	
 
@@ -54,7 +54,7 @@ void USuspensionSide::BeginPlay()
 	
 	scene_wheelCenter->SetRelativeLocation(posWheelCenter);
 	//set bot point
-	scene_botPoint->SetRelativeLocation(posWheelCenter + FVector(0.0f, 0.0f, - data->wheelRadius - data->springMove));
+	scene_botPoint->SetRelativeLocation(posWheelCenter + FVector(0.0f, 0.0f, -data->wheelRadius));
 }
 
 void USuspensionSide::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -88,7 +88,7 @@ void USuspensionSide::RefreshBlock(float DeltaTime)
 		}
 		oldDamperLength = currDamperLength;
 		currDamperLength += motionLength;
-		springForce = data->stiffness * 500.f * (currDamperLength - data->relaxDamperLength);
+		springForce = data->stiffness * 100.f * (currDamperLength - data->relaxDamperLength);
 
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "moveLength " + FString::SanitizeFloat(motionLength));
 	}
@@ -107,7 +107,7 @@ void USuspensionSide::RefreshBlock(float DeltaTime)
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "currSpringLength " + FString::SanitizeFloat(currDamperLength));
 	tools::DubugPoint(GetWorld(), scene_wheelCenter->GetComponentLocation(), FColor::Green, "wheel center");
 	tools::DubugPoint(GetWorld(), scene_damperPointBot->GetComponentLocation(), FColor::Green, "damper bot");
-	//tools::DubugPoint(GetWorld(), mesh_wheel->GetComponentLocation(), FColor::Green, "wheel");
+	tools::DubugPoint(GetWorld(), mesh_wheel->GetComponentLocation(), FColor::Green, "wheel");
 	tools::DubugPoint(GetWorld(), scene_botPoint->GetComponentLocation(), FColor::Green, "bot point");
 	tools::DubugPoint(GetWorld(), scene_damperPointTop->GetComponentLocation(), FColor::Green, "damper top");
 
