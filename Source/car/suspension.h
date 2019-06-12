@@ -2,20 +2,25 @@
 
 #pragma once
 
+#include <functional>
+
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
 #include "suspension.generated.h"
 
 class USuspensionSide;
+using FuncForce = std::function<void(FVector, FVector, FName)>;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class CAR_API USuspension : public USceneComponent
-{
+{	
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
 	USuspension();
+
+	void init(const FuncForce& funcAddForceAtbody);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 	float trackWidth;
@@ -50,9 +55,10 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	
-public:	
+public:		
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
 	void refreshBlock(float DeltaTime, USuspensionSide* suspSide);
-		
+private:
+	FuncForce addForceAtbody;
 };

@@ -29,7 +29,7 @@ void USuspension::BeginPlay()
 {
 	leftBlock->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetIncludingScale);	
 	leftBlock->scene_damperPointTop->AttachToComponent(leftBlock, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	leftBlock->scene_damperPointBot->AttachToComponent(leftBlock, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	leftBlock->scene_damperPointBot->AttachToComponent(leftBlock, FAttachmentTransformRules::SnapToTargetIncludingScale);	
 	leftBlock->mesh_wheel->AttachToComponent(leftBlock->scene_damperPointBot, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	leftBlock->scene_wheelCenter->AttachToComponent(leftBlock->mesh_wheel, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	leftBlock->scene_botPoint->AttachToComponent(leftBlock->scene_wheelCenter, FAttachmentTransformRules::SnapToTargetIncludingScale);
@@ -73,11 +73,9 @@ void USuspension::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 
 void USuspension::refreshBlock(float DeltaTime, USuspensionSide* suspSide)
 {	
-	float remainingDamperLength = relaxDamperLength + springMove - suspSide->currDamperLength;
-
 	const auto& start = suspSide->scene_wheelCenter->GetComponentLocation();
 	const auto& end = start + (suspSide->scene_wheelCenter->GetComponentRotation() + FRotator(-90.0f, 0.0f, 0.0f)).Vector() * (wheelRadius);
-	const auto& endMax = start + (suspSide->scene_wheelCenter->GetComponentRotation() + FRotator(-90.0f, 0.0f, 0.0f)).Vector() * (wheelRadius + remainingDamperLength);
+	const auto& endMax = start + (suspSide->scene_wheelCenter->GetComponentRotation() + FRotator(-90.0f, 0.0f, 0.0f)).Vector() * (wheelRadius + springMove);
 	FHitResult outHit;
 	FCollisionQueryParams collisionParams;	
 	bool isHit = GetWorld()->LineTraceSingleByChannel(outHit, start, endMax, ECC_WorldDynamic, collisionParams);
@@ -106,6 +104,7 @@ void USuspension::refreshBlock(float DeltaTime, USuspensionSide* suspSide)
 		suspSide->currDamperLength = relaxDamperLength + springMove;
 		suspSide->springForce = 0;
 	}			
+	
 	
 	addForceAtbody(suspSide->scene_damperPointTop->GetForwardVector() * (suspSide->springForce), suspSide->scene_damperPointTop->GetComponentLocation(), NAME_None);	
 

@@ -18,23 +18,26 @@ APawnCar::APawnCar()
 	for (auto suspension : suspensions)
 	{
 		suspension->SetupAttachment(mesh_body);		
+		auto f = std::bind(&UStaticMeshComponent::AddForceAtLocation, mesh_body, std::placeholders::_1, std::placeholders::_2, NAME_None);
+		suspension->init(f);
     }		
 }
 
 void APawnCar::BeginPlay()
-{
-	//suspensions[0]->SetRelativeLocation({ 0.0f, -1800.0f, -730.0f });
+{	
 	Super::BeginPlay();		
+	
 }
 
 void APawnCar::Tick(float DeltaTime)
 {		
 	GEngine->ClearOnScreenDebugMessages();
 	Super::Tick(DeltaTime);		
+	//mesh_body->AddForceAtLocation({ 1000000.0f, 1000000.0f, 0.0f }, { 100.0f, 1000.0f, 0.0f });
 }
 
 // Called to bind functionality to input
 void APawnCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	Super::SetupPlayerInputComponent(PlayerInputComponent);	
 }
