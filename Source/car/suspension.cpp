@@ -12,24 +12,28 @@
 
 // Sets default values for this component's properties
 USuspension::USuspension()
-	: trackWidth(1520.0f)
-	, relaxDamperLength(810.0f)
+	: trackWidth(1480.0f)
+	, relaxDamperLength(1000.0f)
 	, springMove(200.0f)
-	, stiffness(4.5f)
-	, damper(100.0f)
+	, stiffness(4000.0f)
+	, damper(40000.0f)
 	, wheelRadius(440.0f)
 	, wheelWidth(350.0f)
 	, kpiAngle(0.0f)	
-	, leftBlock(CreateDefaultSubobject<USuspensionSide>("leftBlock"))
-	, rightBlock(CreateDefaultSubobject<USuspensionSide>("rightPart"))	
+	, leftBlock()
+	, rightBlock()
+	, maxTurnAngle(45.0f)
+	, currTurnAngle(0.0f)
 {	
-	PrimaryComponentTick.bCanEverTick = true;			
+	PrimaryComponentTick.bCanEverTick = false;
+	leftBlock = CreateDefaultSubobject<USuspensionSide>("leftBlock");
+	rightBlock = CreateDefaultSubobject<USuspensionSide>("rightBlock");	
+	leftBlock->SetupAttachment(this);
+	rightBlock->SetupAttachment(this);
 }
 
 void USuspension::BeginPlay()
-{
-	leftBlock->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetIncludingScale);	
-	rightBlock->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
+{	
 	Super::BeginPlay();				
 	//set block pos
 	float halfTrackWidth = trackWidth / 2.0f;
@@ -52,10 +56,25 @@ void USuspension::Init(const tools::FuncForce& funcAddForceAtbody)
 
 void USuspension::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {	
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	tools::DubugPoint(GetWorld(), GetComponentLocation(), FColor::Green, "Suss bar");
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	leftBlock->TickComponent(DeltaTime, TickType, ThisTickFunction);
+	rightBlock->TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
 }
 
-
+void USuspension::turnWheel(float axis)
+{
+	if (axis != 0.0f)
+	{
+		axis *= 2.0f;
+		if (maxTurnAngle > abs(currTurnAngle + axis))
+		{
+			currTurnAngle += axis;
+			leftBlock->turnWheel(currTurnAngle);
+			rightBlock->turnWheel(currTurnAngle);
+		}
+	}
+}
 
 

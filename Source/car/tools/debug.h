@@ -7,7 +7,12 @@
 
 namespace tools
 {
-	inline void DubugPoint(const UWorld* world, const FVector& pos, const FColor& color, const FString& text)
+	inline void DubugPoint(const UWorld* world, const FVector& pos, const FColor& color, const FString& text, bool isOnScreen = true)
+	{
+		DrawDebugPoint(world, pos, 15.0f, color, false, 0.01f);
+		DrawDebugString(world, pos + FVector{ 0.0f, 0.0f, 30.0f }, text, nullptr, color, 0.01f);
+	}
+	inline void DubugPointOnScreen(const UWorld* world, const FVector& pos, const FColor& color, const FString& text)
 	{
 		DrawDebugPoint(world, pos, 15.0f, color, false, 0.01f);
 		DrawDebugString(world, pos + FVector{ 0.0f, 0.0f, 30.0f }, text, nullptr, color, 0.01f);

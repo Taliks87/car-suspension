@@ -23,10 +23,12 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	
-public:		
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;		
 
+	void turnWheel(float axis);	
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		float trackWidth;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
@@ -54,4 +56,7 @@ public:
 		USuspensionSide* leftBlock;	
 	UPROPERTY(EditAnywhere)
 		USuspensionSide* rightBlock;
+private:
+	float maxTurnAngle;
+	float currTurnAngle;
 };

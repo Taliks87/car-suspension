@@ -23,10 +23,12 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
+
+	void turnWheel(float axis);	
 private:
 	void RefreshBlock(float DeltaTime);
 
-public:
+protected:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* mesh_wheel;		
 
@@ -34,12 +36,14 @@ protected:
 	USceneComponent* scene_wheelCenter;
 	USceneComponent* scene_damperPointTop;
 	USceneComponent* scene_damperPointBot;
-	USceneComponent* scene_botPoint;		
+	//USceneComponent* scene_botPoint;		
 private:	
 	bool isLeft;
 	float springForce;	
+	float damperForce;	
 	float reyLength;		
 	float currDamperLength;
 	float oldDamperLength;
+	float maxDamperLength;
 	tools::SuspensionDataPtr data;
 };

@@ -2,16 +2,16 @@
 
 namespace tools
 {
-	SuspensionData::SuspensionData(float relaxDamperLength, float springMove, float stiffness, float damper,
-		float wheelRadius, float wheelWidth, float kpiAngle, const tools::FuncForce& addForceAtBody)
-		: relaxDamperLength(relaxDamperLength)
-		, springMove(springMove)
-		, stiffness(stiffness)
-		, damper(damper)
-		, wheelRadius(wheelRadius)
-		, wheelWidth(wheelWidth)
-		, kpiAngle(kpiAngle)
-		, addForceAtBody(addForceAtBody)
+	SuspensionData::SuspensionData(float _relaxDamperLength, float _damperMove, float _stiffness, float _damper,
+		float _wheelRadius, float _wheelWidth, float _kpiAngle, const tools::FuncForce& _addForceAtBody)
+		: relaxDamperLength(_relaxDamperLength)
+		, damperMove(_damperMove)
+		, stiffness(_stiffness)
+		, damper(_damper)
+		, wheelRadius(_wheelRadius)
+		, wheelWidth(_wheelWidth)
+		, kpiAngle(_kpiAngle)
+		, addForceAtBody(_addForceAtBody)
 	{
 
 	}

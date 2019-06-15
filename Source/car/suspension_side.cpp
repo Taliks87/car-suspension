@@ -3,21 +3,36 @@
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "Engine.h"
 #include "tools/debug.h"
+//#include "CollisionQueryParams.h"
 
 // Sets default values for this component's properties
 USuspensionSide::USuspensionSide()
-	: mesh_wheel(CreateDefaultSubobject<UStaticMeshComponent>("mesh_wheel"))
-	, scene_wheelCenter(CreateDefaultSubobject<USceneComponent>("wheelCenter"))
-	, scene_damperPointTop(CreateDefaultSubobject<USceneComponent>("damperPointTop"))
-	, scene_damperPointBot(CreateDefaultSubobject<USceneComponent>("damperPointBot"))
-	, scene_botPoint(CreateDefaultSubobject<USceneComponent>("botPoint"))
+	: mesh_wheel()
+	, scene_wheelCenter()
+	, scene_damperPointTop()
+	, scene_damperPointBot()
+	//, scene_botPoint()
 	, isLeft(false)
 	, springForce(0.0f)
+	, damperForce(0.0f)
 	, reyLength(0.0f)
 	, currDamperLength(0.0f)
 	, oldDamperLength(0.0f)	
+	, maxDamperLength(0.0f)
+	, data()
 {	
-	PrimaryComponentTick.bCanEverTick = true;	
+	mesh_wheel = CreateDefaultSubobject<UStaticMeshComponent>("mesh_wheel");
+	scene_wheelCenter = CreateDefaultSubobject<USceneComponent>("wheelCenter");
+	scene_damperPointTop = CreateDefaultSubobject<USceneComponent>("damperPointTop");
+	scene_damperPointBot = CreateDefaultSubobject<USceneComponent>("damperPointBot");
+	//scene_botPoint = CreateDefaultSubobject<USceneComponent>("botPoint");
+
+	PrimaryComponentTick.bCanEverTick = false;	
+	scene_damperPointTop->SetupAttachment(this);
+	scene_damperPointBot->SetupAttachment(this);
+	mesh_wheel->SetupAttachment(scene_damperPointBot);
+	scene_wheelCenter->SetupAttachment(mesh_wheel);
+	//scene_botPoint->SetupAttachment(scene_damperPointBot);
 }
 
 void USuspensionSide::Init(tools::SuspensionDataPtr& newSuspensionData, bool isLeftSide)
@@ -25,16 +40,11 @@ void USuspensionSide::Init(tools::SuspensionDataPtr& newSuspensionData, bool isL
 	isLeft = isLeftSide;
 	data = newSuspensionData;
 	currDamperLength = data->relaxDamperLength;
+	maxDamperLength = data->relaxDamperLength + data->damperMove;
 }
 
 void USuspensionSide::BeginPlay()
 {
-	scene_damperPointTop->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	scene_damperPointBot->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	mesh_wheel->AttachToComponent(scene_damperPointBot, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	scene_wheelCenter->AttachToComponent(mesh_wheel, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	scene_botPoint->AttachToComponent(scene_damperPointBot, FAttachmentTransformRules::SnapToTargetIncludingScale);
-
 	Super::BeginPlay();	
 
 	//set damper pos
@@ -43,7 +53,6 @@ void USuspensionSide::BeginPlay()
 	//set wheel pos
 	const auto& leftDumperTr = scene_damperPointTop->GetRelativeTransform();
 	FVector posWheel = leftDumperTr.GetLocation() + leftDumperTr.GetRotation().Vector() * data->relaxDamperLength;
-	//leftBlock->mesh_wheel->SetRelativeLocation(posWheelFL);		
 	scene_damperPointBot->SetRelativeLocation(posWheel);
 	FVector posWheelCenter;
 	if (isLeft) {
@@ -54,7 +63,7 @@ void USuspensionSide::BeginPlay()
 	
 	scene_wheelCenter->SetRelativeLocation(posWheelCenter);
 	//set bot point
-	scene_botPoint->SetRelativeLocation(posWheelCenter + FVector(0.0f, 0.0f, - data->wheelRadius - data->springMove));
+	//scene_botPoint->SetRelativeLocation(posWheelCenter + FVector(0.0f, 0.0f, - data->wheelRadius - data->damperMove));
 }
 
 void USuspensionSide::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -63,57 +72,64 @@ void USuspensionSide::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	RefreshBlock(DeltaTime);
 }
 
+void USuspensionSide::turnWheel(float angle)
+{
+	scene_damperPointBot->SetRelativeRotation({0.0f, angle, 0.0f});
+}
+
 void USuspensionSide::RefreshBlock(float DeltaTime)
 {
-	float remainingDamperLength = data->relaxDamperLength + data->springMove - currDamperLength;
+	float remainingDamperLength = maxDamperLength - currDamperLength;
 
 	const auto& start = scene_wheelCenter->GetComponentLocation();
 	//const auto& end = start + (scene_wheelCenter->GetComponentRotation() + FRotator(-90.0f, 0.0f, 0.0f)).Vector() * (data->wheelRadius);
 	const auto& endMax = start + (scene_wheelCenter->GetComponentRotation() + FRotator(-90.0f, 0.0f, 0.0f)).Vector() * (data->wheelRadius + remainingDamperLength);
 	FHitResult outHit;
 	FCollisionQueryParams collisionParams;
-	bool isHit = GetWorld()->LineTraceSingleByChannel(outHit, start, endMax, ECC_WorldDynamic, collisionParams);
+	collisionParams.AddIgnoredActor(this->GetAttachmentRootActor());
+	bool isHit = GetWorld()->LineTraceSingleByChannel(outHit, start, endMax, ECC_WorldStatic, collisionParams);
 	if (isHit && outHit.bBlockingHit && /*(outHit.GetComponent() != this->GetAttachParent()) &&*/ GEngine)
 	{
 		//calc motion length
 		FVector hitPos = outHit.ImpactPoint;
 		tools::DubugPoint(GetWorld(), hitPos, FColor::Red, "hitPos");
 		float motionLength = outHit.Distance - data->wheelRadius;
-		if (motionLength < 0)
-		{
+		if (motionLength < 0) {// decompression
 			scene_damperPointBot->AddRelativeLocation(FRotator(-90.f, 0.f, 0.f).Vector() * (motionLength)); //TODO: if angle isn't 90								
-		}
-		else {
+		} else {// compression
 			scene_damperPointBot->AddRelativeLocation(FRotator(-90.f, 0.f, 0.f).Vector() * (motionLength));//TODO: if angle isn't 90								
 		}
-		oldDamperLength = currDamperLength;
+		oldDamperLength = currDamperLength;		
 		currDamperLength += motionLength;
-		springForce = data->stiffness * 500.f * (currDamperLength - data->relaxDamperLength);
+		damperForce = data->damper * motionLength;
+		springForce = data->stiffness * (currDamperLength - data->relaxDamperLength);		
 
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "moveLength " + FString::SanitizeFloat(motionLength));
 	}
 	else {
 		const auto& leftDumperTr = scene_damperPointTop->GetRelativeTransform();
-		scene_damperPointBot->SetRelativeLocation(leftDumperTr.GetLocation() + leftDumperTr.GetRotation().Vector() * (data->relaxDamperLength + data->springMove));
+		scene_damperPointBot->SetRelativeLocation(leftDumperTr.GetLocation() + leftDumperTr.GetRotation().Vector() * (data->relaxDamperLength + data->damperMove));
 
 		oldDamperLength = currDamperLength;
-		currDamperLength = data->relaxDamperLength + data->springMove;
+		currDamperLength = data->relaxDamperLength + data->damperMove;
 		springForce = 0;
+		damperForce = 0;
 	}
 
-	data->addForceAtBody(scene_damperPointTop->GetForwardVector() * (springForce), scene_damperPointTop->GetComponentLocation(), NAME_None);
-
-	//tools::DubugPoint(GetWorld(), suspSide->GetComponentLocation(), FColor::Green, "block");
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "currSpringLength " + FString::SanitizeFloat(currDamperLength));
-	tools::DubugPoint(GetWorld(), scene_wheelCenter->GetComponentLocation(), FColor::Green, "wheel center");
+	data->addForceAtBody(scene_damperPointTop->GetForwardVector() * (springForce + damperForce), scene_damperPointTop->GetComponentLocation(), NAME_None);
+	
+	//tools::DubugPoint(GetWorld(), GetComponentLocation(), FColor::Green, "block");			
 	tools::DubugPoint(GetWorld(), scene_damperPointBot->GetComponentLocation(), FColor::Green, "damper bot");
 	//tools::DubugPoint(GetWorld(), mesh_wheel->GetComponentLocation(), FColor::Green, "wheel");
-	tools::DubugPoint(GetWorld(), scene_botPoint->GetComponentLocation(), FColor::Green, "bot point");
-	tools::DubugPoint(GetWorld(), scene_damperPointTop->GetComponentLocation(), FColor::Green, "damper top");
-
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, FString::SanitizeFloat(springForce));
+	//tools::DubugPoint(GetWorld(), scene_botPoint->GetComponentLocation(), FColor::Green, "bot point");
+	tools::DubugPoint(GetWorld(), scene_damperPointTop->GetComponentLocation(), FColor::Green, "damper top");	
 	DrawDebugLine(GetWorld(), start, endMax, FColor::Purple, false);
 	DrawDebugLine(GetWorld(), scene_damperPointTop->GetComponentLocation(), scene_damperPointTop->GetComponentLocation() +
-		scene_damperPointTop->GetForwardVector() * (springForce / 100.0f), FColor::Purple, false);
+		scene_damperPointTop->GetForwardVector() * ((springForce + damperForce) / 100.0f), FColor::Blue, false);
+	tools::DubugPointOnScreen(GetWorld(), scene_wheelCenter->GetComponentLocation(), FColor::Green, "wheel center");
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "damper length " + FString::SanitizeFloat(currDamperLength));
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "spring force " + FString::SanitizeFloat(springForce));
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "damper force " + FString::SanitizeFloat(damperForce));
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::White, this->GetName());
 }
 

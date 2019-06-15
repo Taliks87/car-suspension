@@ -9,11 +9,11 @@ namespace tools
 	using FuncForce = std::function<void(FVector, FVector, FName)>;
 	struct SuspensionData {
 
-		SuspensionData(float relaxDamperLength, float springMove, float stiffness, float damper, 
-			float wheelRadius, float wheelWidth, float kpiAngle, const tools::FuncForce& addForceAtBody);
+		SuspensionData(float relaxDamperLength, float _damperMove, float _stiffness, float _damper,
+			float _wheelRadius, float _wheelWidth, float _kpiAngle, const tools::FuncForce& _addForceAtBody);
 
 		float relaxDamperLength;
-		float springMove;
+		float damperMove;
 		float stiffness;
 		float damper;
 		float wheelRadius;
