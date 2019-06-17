@@ -16,7 +16,7 @@ class CAR_API USuspensionSide : public USceneComponent
 public:	
 	// Sets default values for this component's properties
 	USuspensionSide();
-	void Init(tools::SuspensionDataPtr& newSuspensionData, bool isLeftSide);
+	void Init(tools::CommonSuspensionDataPtr& newSuspensionData, bool isLeftSide);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -29,14 +29,12 @@ private:
 	void RefreshBlock(float DeltaTime);
 
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Block data")
 	UStaticMeshComponent* mesh_wheel;		
-
 protected:	
 	USceneComponent* scene_wheelCenter;
 	USceneComponent* scene_damperPointTop;
 	USceneComponent* scene_damperPointBot;
-	//USceneComponent* scene_botPoint;		
 private:	
 	bool isLeft;
 	float springForce;	
@@ -44,6 +42,7 @@ private:
 	float reyLength;		
 	float currDamperLength;
 	float oldDamperLength;
-	float maxDamperLength;
-	tools::SuspensionDataPtr data;
+	float maxDamperLength;		
+	
+	tools::CommonSuspensionDataPtr data;
 };

@@ -19,7 +19,8 @@ USuspension::USuspension()
 	, damper(40000.0f)
 	, wheelRadius(440.0f)
 	, wheelWidth(350.0f)
-	, kpiAngle(0.0f)	
+	, kpiAngle(0.0f)
+	, frictionKof(1.0f)
 	, leftBlock()
 	, rightBlock()
 	, maxTurnAngle(45.0f)
@@ -46,12 +47,12 @@ void USuspension::BeginPlay()
 	rightBlock->SetRelativeLocation({ halfTrackWidth, 0.0f, 0.0f });	
 }
 
-void USuspension::Init(const tools::FuncForce& funcAddForceAtbody)
+void USuspension::Init(float mass, const tools::FuncForce& funcAddForceAtbody)
 {
-	tools::SuspensionDataPtr p = std::make_shared<tools::SuspensionData>(relaxDamperLength, springMove, stiffness,
-		damper, wheelRadius, wheelWidth, kpiAngle, funcAddForceAtbody);
-	leftBlock->Init(p, true);	
-	rightBlock->Init(p, false);
+	tools::CommonSuspensionDataPtr commonData = std::make_shared<tools::CommonSuspensionData>(mass, relaxDamperLength, springMove, stiffness,
+		damper, wheelRadius, wheelWidth, kpiAngle, frictionKof, funcAddForceAtbody);
+	leftBlock->Init(commonData, true);
+	rightBlock->Init(commonData, false);
 }
 
 void USuspension::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -67,7 +68,7 @@ void USuspension::turnWheel(float axis)
 {
 	if (axis != 0.0f)
 	{
-		axis *= 2.0f;
+		axis *= 1.0f;
 		if (maxTurnAngle > abs(currTurnAngle + axis))
 		{
 			currTurnAngle += axis;

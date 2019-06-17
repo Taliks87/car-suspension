@@ -18,7 +18,7 @@ class CAR_API USuspension : public USceneComponent
 public:	
 	// Sets default values for this component's properties
 	USuspension();
-	void Init(const tools::FuncForce& funcAddForceAtbody);
+	void Init(float mass, const tools::FuncForce& funcAddForceAtbody);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -35,12 +35,6 @@ protected:
 		float relaxDamperLength;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		float springMove;
-	//stiffness can by calculate (G*r^4)/(4*n*R^3)
-	//G - shear modulus (mPa) 78500 mPa
-	//n - number of turns 5
-	//r - bar radius (mm) 6 mm
-	//R - coil radius (mm) 66 mm
-	//stiffness - H/mm (for UE4 need convert H/sm)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		float stiffness;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
@@ -51,10 +45,12 @@ protected:
 		float wheelWidth;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		float kpiAngle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
+		float frictionKof;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		USuspensionSide* leftBlock;	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		USuspensionSide* rightBlock;
 private:
 	float maxTurnAngle;

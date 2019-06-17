@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 #include "pawn_car.generated.h"
 
 class USuspension;
@@ -25,23 +27,28 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-private:
+private:	
+	void cameraYaw(float axis);
 	void turnWheel(float axis);	
+	void moveCar(float axis);
+	void cameraPitch(float axis);
 	void camMoveLeft();
 	void camMoveReight();
-
+	
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Car data")
 		UStaticMeshComponent* mesh_body;	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
 		float mass;//kg
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
-		float weightDistribution;//kofficent	
+		FVector2D weightDistribution;//kofficent	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
 		USuspension* frontSuspensions;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
 		USuspension* rearSuspensions;	
-	//UPROPERTY(EditAnywhere)
-	//	USpringArmComponent* springArm;
-	//UCameraComponent* camera;
+	UPROPERTY(EditAnywhere)
+		USpringArmComponent* springArm;
+	UCameraComponent* camera;	
+
+	FVector2D cameraAxis;
 };
