@@ -69,7 +69,7 @@ void USuspensionSide::BeginPlay()
 
 void USuspensionSide::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {		
-	//mesh_wheel->AddRelativeRotation({ 0.0f, 0.0f, 0.15f });
+	mesh_wheel->AddRelativeRotation({ 0.0f, 0.0f, 0.15f });
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);	
 	RefreshBlock(DeltaTime);
 }

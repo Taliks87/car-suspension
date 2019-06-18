@@ -41,7 +41,7 @@ private:
 	float springForce;	
 	float damperForce;	
 	float suspensionForce;
-	float suspensionSpeed;
+	float compressionSpeed;
 	float reyLength;		
 	float currDamperLength;	
 	float maxDamperLength;		

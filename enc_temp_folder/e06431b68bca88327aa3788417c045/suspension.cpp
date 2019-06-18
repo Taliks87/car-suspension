@@ -60,6 +60,8 @@ void USuspension::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 {	
 	tools::DubugPoint(GetWorld(), GetComponentLocation(), FColor::Green, "Suss bar");
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	//leftBlock->TickComponent(DeltaTime, TickType, ThisTickFunction);
+	//rightBlock->TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 }
 
