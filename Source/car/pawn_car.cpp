@@ -52,7 +52,8 @@ void APawnCar::BeginPlay()
 }
 
 void APawnCar::Tick(float DeltaTime)
-{
+{	
+	//mesh_body->AddLocalRotation({ 0.2f, 0.0f, 0.0 });
 	GEngine->ClearOnScreenDebugMessages();	
 	frontSuspensions->TickComponent(DeltaTime, LEVELTICK_All, nullptr);
 	rearSuspensions->TickComponent(DeltaTime, LEVELTICK_All, nullptr);

@@ -3,7 +3,7 @@
 namespace tools
 {
 	CommonSuspensionData::CommonSuspensionData(float _commonMass, float _relaxDamperLength, float _damperMove, float _stiffness, float _damper,
-		float _wheelRadius, float _wheelWidth, float _kpiAngle, float _frictionKof, const tools::FuncForce& _addForceAtBody)
+		float _wheelRadius, float _wheelWidth, float _wheelMass, float _kpiAngle, float _frictionKof, const tools::FuncForce& _addForceAtBody)
 		: commonMass(_commonMass)
 		, relaxDamperLength(_relaxDamperLength)
 		, damperMove(_damperMove)
@@ -11,6 +11,7 @@ namespace tools
 		, damper(_damper)
 		, wheelRadius(_wheelRadius)
 		, wheelWidth(_wheelWidth)
+		, wheelMass(_wheelMass)
 		, kpiAngle(_kpiAngle)
 		, frictionKof(_frictionKof)
 		, addForceAtBody(_addForceAtBody)

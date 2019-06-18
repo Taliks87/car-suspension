@@ -15,11 +15,14 @@ USuspensionSide::USuspensionSide()
 	, isLeft(false)
 	, springForce(0.0f)
 	, damperForce(0.0f)
+	, suspensionForce(0.0f)
+	, suspensionSpeed(0.0f)
 	, reyLength(0.0f)
-	, currDamperLength(0.0f)
-	, oldDamperLength(0.0f)	
+	, currDamperLength(0.0f)	
 	, maxDamperLength(0.0f)	
+	, minDamperLength(0.0f)
 	, data()
+	, collisionParams()
 {	
 	mesh_wheel = CreateDefaultSubobject<UStaticMeshComponent>("mesh_wheel");
 	scene_wheelCenter = CreateDefaultSubobject<USceneComponent>("wheelCenter");
@@ -29,8 +32,9 @@ USuspensionSide::USuspensionSide()
 	PrimaryComponentTick.bCanEverTick = false;	
 	scene_damperPointTop->SetupAttachment(this);
 	scene_damperPointBot->SetupAttachment(this);
-	mesh_wheel->SetupAttachment(scene_damperPointBot);
-	scene_wheelCenter->SetupAttachment(mesh_wheel);
+	mesh_wheel->SetupAttachment(scene_damperPointBot);	
+	scene_wheelCenter->SetupAttachment(scene_damperPointBot);
+	collisionParams.AddIgnoredActor(this->GetAttachmentRootActor());
 }
 
 void USuspensionSide::Init(tools::CommonSuspensionDataPtr& newSuspensionData, bool isLeftSide)
@@ -39,11 +43,12 @@ void USuspensionSide::Init(tools::CommonSuspensionDataPtr& newSuspensionData, bo
 	data = newSuspensionData;
 	currDamperLength = data->relaxDamperLength;
 	maxDamperLength = data->relaxDamperLength + data->damperMove;
+	minDamperLength = data->relaxDamperLength - data->damperMove;
 }
 
 void USuspensionSide::BeginPlay()
 {
-	Super::BeginPlay();	
+	Super::BeginPlay();		
 
 	//set damper pos
 	scene_damperPointTop->SetRelativeLocation({ 0.0f, 0.0f, data->relaxDamperLength });
@@ -54,16 +59,17 @@ void USuspensionSide::BeginPlay()
 	scene_damperPointBot->SetRelativeLocation(posWheel);
 	FVector posWheelCenter;
 	if (isLeft) {
-		posWheelCenter = posWheel + (mesh_wheel->GetComponentRotation().Vector() * (-data->wheelWidth / 2.0f));
+		posWheelCenter.X = -data->wheelWidth / 2.0f;
 	} else {
-		posWheelCenter = posWheel - (mesh_wheel->GetComponentRotation().Vector() * (-data->wheelWidth / 2.0f));
+		posWheelCenter.X = data->wheelWidth / 2.0f;
 	}
 	
-	scene_wheelCenter->SetRelativeLocation(posWheelCenter);
+	scene_wheelCenter->SetRelativeLocation(posWheelCenter);	
 }
 
 void USuspensionSide::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{	
+{		
+	mesh_wheel->AddRelativeRotation({ 0.0f, 0.0f, 0.15f });
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);	
 	RefreshBlock(DeltaTime);
 }
@@ -74,75 +80,113 @@ void USuspensionSide::turnWheel(float angle)
 }
 
 void USuspensionSide::RefreshBlock(float DeltaTime)
-{
+{	
 	float remainingDamperLength = maxDamperLength - currDamperLength;
+	const auto& wheelCenterTr = scene_wheelCenter->GetRelativeTransform();
 
 	const auto& start = scene_wheelCenter->GetComponentLocation();
-	const auto& endMax = start + (scene_wheelCenter->GetComponentRotation() + FRotator(-90.0f, 0.0f, 0.0f)).Vector() * (data->wheelRadius + remainingDamperLength);
-	FHitResult outHit;
-	FCollisionQueryParams collisionParams;
-	collisionParams.AddIgnoredActor(this->GetAttachmentRootActor());
-	bool isHit = GetWorld()->LineTraceSingleByChannel(outHit, start, endMax, ECC_WorldStatic, collisionParams);
-	float suspensionForce;
-	FVector frictionForceVec = FVector::ZeroVector;
-	if (isHit && outHit.bBlockingHit && GEngine)
+	
+	bool isAnyHit = false;
+	float hitDistance = TNumericLimits< float >::Max();
+	FVector hitPos;
 	{
-		//calc motion length
-		FVector hitPos = outHit.ImpactPoint;
-		tools::DubugPoint(GetWorld(), hitPos, FColor::Red, "hitPos");
-		float motionLength = outHit.Distance - data->wheelRadius;
-		scene_damperPointBot->AddRelativeLocation(FRotator(-90.f, 0.f, 0.f).Vector() * (motionLength)); //TODO: use kpiAngle;							
-		oldDamperLength = currDamperLength;		
-		currDamperLength += motionLength;
-		damperForce = data->damper * motionLength;
-		springForce = data->stiffness * (currDamperLength - data->relaxDamperLength);
-		suspensionForce = springForce + damperForce;
+		FHitResult outHit;
+		for (float angle = 0.0f; angle >= -0.0f; angle -= 0.0f)
+		{
+			FRotator rotator{ 0.0f, 0.0f, angle };
+			FVector test4 = (scene_wheelCenter->GetComponentRotation() + rotator).RotateVector(FVector::DownVector);
+			//
+			const auto& endMax = start + test4 * (data->wheelRadius + data->damperMove);
 
-		if (suspensionForce < 0) {// decompression
-			//friction
-			auto tr = mesh_wheel->GetComponentTransform();
-			FVector velocityAyHitPoint = mesh_wheel->GetPhysicsLinearVelocityAtPoint(hitPos);
-			velocityAyHitPoint = tr.GetRotation().UnrotateVector(velocityAyHitPoint);
-			float frictioForce = velocityAyHitPoint.X * data->frictionKof * -suspensionForce;
-			float maxFrictioForce = velocityAyHitPoint.X * data->commonMass;
-			if (abs(frictioForce) > abs(maxFrictioForce)) frictioForce = maxFrictioForce;
-			frictionForceVec = { -frictioForce, 0.0f, 0.0f };
-			frictionForceVec = tr.GetRotation().RotateVector(frictionForceVec);
-			data->addForceAtBody(frictionForceVec, start, NAME_None);
-			
-			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "frictionForceVec " + frictionForceVec.ToString());
-			DrawDebugLine(GetWorld(), hitPos, hitPos +
-				frictionForceVec, FColor::Blue, false);
-		}				
-		DrawDebugLine(GetWorld(), scene_damperPointTop->GetComponentLocation(), scene_damperPointTop->GetComponentLocation() +
-			mesh_wheel->GetPhysicsLinearVelocityAtPoint(hitPos), FColor::White, false);	//wheel velocity	
+			bool isHit = GetWorld()->LineTraceSingleByChannel(outHit, start, endMax, ECC_WorldStatic, collisionParams);
+			if (isHit && outHit.bBlockingHit && GEngine)
+			{
+				float distanceFromFloor = abs(outHit.Distance * cos(angle));
+				if (distanceFromFloor < hitDistance )
+				{
+					hitDistance = distanceFromFloor;
+					hitPos = outHit.ImpactPoint;
+				}
+				isAnyHit = true;
+			}
+			DrawDebugLine(GetWorld(), start, endMax, FColor::Purple, false);
+		}
+	}		
+	//calc motion length
+		
+	float motionLength;
+		
+	float maxMotionLength = maxDamperLength - currDamperLength;
+	float minMotionLength = minDamperLength - currDamperLength;
+	if (isAnyHit)
+	{
+		maxMotionLength = FMath::Max(hitDistance - data->wheelRadius, minMotionLength);			
+		tools::DubugPoint(GetWorld(), hitPos, FColor::Red, "hitPos");
+	}
+	bool isWeelFree = (maxMotionLength > 0.0f || !isAnyHit || hitDistance > data->wheelRadius);
+	if (isWeelFree)
+	{
+		motionLength = ((suspensionForce / data->wheelMass) * DeltaTime * DeltaTime / 2 + suspensionSpeed * DeltaTime);
+		if (motionLength > 0.0f) {// decompression
+			if (motionLength >= maxMotionLength) {
+				motionLength = maxMotionLength;
+				isWeelFree = false;
+			}
+		} else {
+			if (motionLength < minMotionLength) motionLength = minMotionLength;				
+		}			
 	}
 	else {
-		const auto& leftDumperTr = scene_damperPointTop->GetRelativeTransform();
-		scene_damperPointBot->SetRelativeLocation(leftDumperTr.GetLocation() + leftDumperTr.GetRotation().Vector() * (data->relaxDamperLength + data->damperMove));
-
-		oldDamperLength = currDamperLength;
-		currDamperLength = data->relaxDamperLength + data->damperMove;
-		suspensionForce = 0;		
+		motionLength = maxMotionLength;
 	}
+	suspensionSpeed = motionLength / DeltaTime;
 
-	//mesh_wheel->GetComponentVelocity();
-	mesh_wheel->GetPhysicsLinearVelocity();
-	FVector suspensionForceVec = scene_damperPointTop->GetForwardVector() * (suspensionForce);
-	data->addForceAtBody(suspensionForceVec, scene_damperPointTop->GetComponentLocation(), NAME_None);	
-	
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "suspensionForceVec " + suspensionForceVec.ToString());
-	tools::DubugPoint(GetWorld(), scene_damperPointBot->GetComponentLocation(), FColor::Green, "damper bot");
-	tools::DubugPoint(GetWorld(), scene_damperPointTop->GetComponentLocation(), FColor::Green, "damper top");	
-	DrawDebugLine(GetWorld(), start, endMax, FColor::Purple, false);
+	//calc suspension force
+	scene_damperPointBot->AddRelativeLocation(FRotator(-90.f, 0.f, 0.f).Vector() * (motionLength)); //TODO: use kpiAngle;		
+	currDamperLength += motionLength;				
+	damperForce = data->damper * -motionLength;
+	springForce = data->stiffness * (data->relaxDamperLength - currDamperLength);
+	suspensionForce = springForce + damperForce;
+
+	if (!isWeelFree)
+	{
+		addFrictionForce(suspensionForce, hitPos);
+		FVector suspensionForceVec = scene_damperPointTop->GetForwardVector() * (-suspensionForce);
+		data->addForceAtBody(suspensionForceVec, scene_damperPointTop->GetComponentLocation(), NAME_None);
+
+		DrawDebugLine(GetWorld(), scene_damperPointTop->GetComponentLocation(), scene_damperPointTop->GetComponentLocation() +
+			suspensionForceVec / 100.0f, FColor::Blue, false);
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "suspensionForceVec " + suspensionForceVec.ToString());
+	}
+		
 	DrawDebugLine(GetWorld(), scene_damperPointTop->GetComponentLocation(), scene_damperPointTop->GetComponentLocation() +
-		suspensionForceVec / 100.0f, FColor::Blue, false);
-
+		mesh_wheel->GetPhysicsLinearVelocityAtPoint(hitPos), FColor::White, false);	//wheel velocity	
+	
+	tools::DubugPoint(GetWorld(), scene_damperPointBot->GetComponentLocation(), FColor::Green, "damper bot");
+	tools::DubugPoint(GetWorld(), scene_damperPointTop->GetComponentLocation(), FColor::Green, "damper top");			
 	tools::DubugPointOnScreen(GetWorld(), scene_wheelCenter->GetComponentLocation(), FColor::Green, "wheel center");
 	/*GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "damper length " + FString::SanitizeFloat(currDamperLength));
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "spring force " + FString::SanitizeFloat(springForce));
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "damper force " + FString::SanitizeFloat(damperForce));*/
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::White, "velocity " + mesh_wheel->GetPhysicsLinearVelocity().ToString());
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Purple, this->GetName());
+}
+
+void USuspensionSide::addFrictionForce(float suspensionForce, const FVector& hitPos)
+{
+	FVector frictionForceVec = FVector::ZeroVector;
+	auto tr = scene_wheelCenter->GetComponentTransform();
+	FVector velocityAyHitPoint = mesh_wheel->GetPhysicsLinearVelocityAtPoint(hitPos);
+	velocityAyHitPoint = tr.GetRotation().UnrotateVector(velocityAyHitPoint);
+	float frictioForce = velocityAyHitPoint.X * data->frictionKof * suspensionForce;
+	float maxFrictioForce = velocityAyHitPoint.X * data->commonMass;
+	if (abs(frictioForce) > abs(maxFrictioForce)) frictioForce = maxFrictioForce;
+	frictionForceVec = { -frictioForce, 0.0f, 0.0f };
+	frictionForceVec = tr.GetRotation().RotateVector(frictionForceVec);
+	data->addForceAtBody(frictionForceVec, hitPos, NAME_None);
+
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "frictionForceVec " + frictionForceVec.ToString());
+	DrawDebugLine(GetWorld(), hitPos, hitPos +
+		frictionForceVec, FColor::Blue, false);
 }
 

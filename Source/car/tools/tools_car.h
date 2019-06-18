@@ -11,7 +11,7 @@ namespace tools
 	struct CommonSuspensionData {
 
 		CommonSuspensionData(float _commonMass, float _relaxDamperLength, float _damperMove, float _stiffness, float _damper,
-			float _wheelRadius, float _wheelWidth, float _kpiAngle, float _frictionKof, const tools::FuncForce& _addForceAtBody);
+			float _wheelRadius, float _wheelWidth, float _wheelMass, float _kpiAngle, float _frictionKof, const tools::FuncForce& _addForceAtBody);
 
 		float commonMass;
 		float relaxDamperLength;
@@ -26,6 +26,7 @@ namespace tools
 		float damper;
 		float wheelRadius;
 		float wheelWidth;
+		float wheelMass;
 		float kpiAngle;
 		//frictionKof depend of surface
 		float frictionKof;

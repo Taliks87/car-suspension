@@ -14,11 +14,12 @@
 USuspension::USuspension()
 	: trackWidth(1480.0f)
 	, relaxDamperLength(1000.0f)
-	, springMove(200.0f)
+	, damperMove(400.0f)
 	, stiffness(4000.0f)
 	, damper(40000.0f)
 	, wheelRadius(440.0f)
 	, wheelWidth(350.0f)
+	, wheelMass(50.0f)
 	, kpiAngle(0.0f)
 	, frictionKof(1.0f)
 	, leftBlock()
@@ -49,8 +50,8 @@ void USuspension::BeginPlay()
 
 void USuspension::Init(float mass, const tools::FuncForce& funcAddForceAtbody)
 {
-	tools::CommonSuspensionDataPtr commonData = std::make_shared<tools::CommonSuspensionData>(mass, relaxDamperLength, springMove, stiffness,
-		damper, wheelRadius, wheelWidth, kpiAngle, frictionKof, funcAddForceAtbody);
+	tools::CommonSuspensionDataPtr commonData = std::make_shared<tools::CommonSuspensionData>(mass, relaxDamperLength, damperMove, stiffness,
+		damper, wheelRadius, wheelWidth, wheelMass, kpiAngle, frictionKof, funcAddForceAtbody);
 	leftBlock->Init(commonData, true);
 	rightBlock->Init(commonData, false);
 }

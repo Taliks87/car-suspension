@@ -34,7 +34,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		float relaxDamperLength;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float springMove;
+		float damperMove;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		float stiffness;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
@@ -43,6 +43,8 @@ protected:
 		float wheelRadius;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		float wheelWidth;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
+		float wheelMass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		float kpiAngle;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")

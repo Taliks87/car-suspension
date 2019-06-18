@@ -27,6 +27,7 @@ public:
 	void turnWheel(float axis);	
 private:
 	void RefreshBlock(float DeltaTime);
+	void addFrictionForce(float suspensionForce, const FVector& hitPos);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Block data")
@@ -39,10 +40,14 @@ private:
 	bool isLeft;
 	float springForce;	
 	float damperForce;	
+	float suspensionForce;
+	float suspensionSpeed;
 	float reyLength;		
-	float currDamperLength;
-	float oldDamperLength;
+	float currDamperLength;	
 	float maxDamperLength;		
+	float minDamperLength;		
 	
 	tools::CommonSuspensionDataPtr data;
+
+	FCollisionQueryParams collisionParams;
 };
