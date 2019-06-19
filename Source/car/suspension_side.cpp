@@ -16,7 +16,8 @@ USuspensionSide::USuspensionSide()
 	, springForce(0.0f)
 	, damperForce(0.0f)
 	, suspensionForce(0.0f)
-	, compressionSpeed(0.0f)
+	, compressionVelocity(0.0f)
+	, wheelSpinVelocity(0.0f)
 	, reyLength(0.0f)
 	, currDamperLength(0.0f)	
 	, maxDamperLength(0.0f)	
@@ -68,18 +69,17 @@ void USuspensionSide::BeginPlay()
 }
 
 void USuspensionSide::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{		
-	//mesh_wheel->AddRelativeRotation({ 0.0f, 0.0f, 0.15f });
+{			
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);	
-	RefreshBlock(DeltaTime);
+	UpdateSuspension(DeltaTime);
 }
 
-void USuspensionSide::turnWheel(float angle)
+void USuspensionSide::TurnWheel(float angle)
 {
 	scene_damperPointBot->SetRelativeRotation({0.0f, angle, 0.0f});
 }
 
-void USuspensionSide::RefreshBlock(float DeltaTime)
+void USuspensionSide::UpdateSuspension(float deltaTime)
 {			
 	//rays cast
 	const auto& wheelCenterLoc = scene_wheelCenter->GetComponentLocation();
@@ -128,7 +128,7 @@ void USuspensionSide::RefreshBlock(float DeltaTime)
 	float motionLength;
 	if (isWeelFree)
 	{
-		motionLength = ((suspensionForce / data->wheelMass) * DeltaTime * DeltaTime / 2 + compressionSpeed * DeltaTime);
+		motionLength = ((suspensionForce / data->wheelMass) * deltaTime * deltaTime / 2 + compressionVelocity * deltaTime);
 		if (motionLength > 0.0f) {// decompression
 			if (motionLength >= maxMotionLength) {
 				motionLength = maxMotionLength;
@@ -141,7 +141,7 @@ void USuspensionSide::RefreshBlock(float DeltaTime)
 	else {
 		motionLength = maxMotionLength;
 	}
-	compressionSpeed = motionLength / DeltaTime;
+	compressionVelocity = motionLength / deltaTime;
 
 	//calc suspension force
 	scene_damperPointBot->AddRelativeLocation(FRotator(-90.f, 0.f, 0.f).Vector() * (motionLength)); //TODO: use kpiAngle;		
@@ -152,41 +152,51 @@ void USuspensionSide::RefreshBlock(float DeltaTime)
 
 	if (!isWeelFree)
 	{
-		//Use friction on body
-		addFrictionForce(suspensionForce, hitPos);
+		//Use friction on body and update wheel spin
+		UpdateForceOnWheel(suspensionForce, deltaTime);
 		//Use suspension on body
 		FVector suspensionForceVec = scene_damperPointTop->GetForwardVector() * (-suspensionForce);
 		data->addForceAtBody(suspensionForceVec, scene_damperPointTop->GetComponentLocation(), NAME_None);
 
+		//Debug info
 		DrawDebugLine(GetWorld(), scene_damperPointTop->GetComponentLocation(), scene_damperPointTop->GetComponentLocation() +
 			suspensionForceVec / 100.0f, FColor::Blue, false);
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "suspensionForceVec " + suspensionForceVec.ToString());
 	}
+
+	//set wheel spin velocity
+	wheelSpinVelocity -= wheelSpinVelocity * (0.1f * deltaTime);//fake friction on a wheel 
+	mesh_wheel->AddRelativeRotation({ 0.0f, 0.0f, wheelSpinVelocity * deltaTime });
 			
 	//Debug point
 	tools::DubugPoint(GetWorld(), scene_damperPointBot->GetComponentLocation(), FColor::Green, "damper bot");
 	tools::DubugPoint(GetWorld(), scene_damperPointTop->GetComponentLocation(), FColor::Green, "damper top");			
-	tools::DubugPointOnScreen(GetWorld(), scene_wheelCenter->GetComponentLocation(), FColor::Green, "wheel center");	
+	tools::DubugPointOnScreen(GetWorld(), wheelCenterLoc, FColor::Green, "wheel center");
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Purple, this->GetName());
 }
 
-void USuspensionSide::addFrictionForce(float suspensionForce, const FVector& hitPos)
+void USuspensionSide::UpdateForceOnWheel(float suspensionForces, float deltaTime)
 {
 	FVector frictionForceVec;
 	auto tr = scene_wheelCenter->GetComponentTransform();
+	auto hitPos = scene_wheelCenter->GetComponentLocation();
 	FVector velocityAtHitPoint = mesh_wheel->GetPhysicsLinearVelocityAtPoint(hitPos);
 	velocityAtHitPoint = tr.GetRotation().UnrotateVector(velocityAtHitPoint);
+
+	//update frictio force
 	float frictioForce = velocityAtHitPoint.X * data->frictionKof * suspensionForce;
 	float maxFrictioForce = velocityAtHitPoint.X * data->commonMass;
 	if (abs(frictioForce) > abs(maxFrictioForce)) frictioForce = maxFrictioForce;
 	frictionForceVec = { -frictioForce, 0.0f, 0.0f };
 	frictionForceVec = tr.GetRotation().RotateVector(frictionForceVec);
 	data->addForceAtBody(frictionForceVec, hitPos, NAME_None);
+	//update wheel spin
+	wheelSpinVelocity = velocityAtHitPoint.Y / (data->wheelRadius * 2 * PI) * 360.0f;
 
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "frictionForceVec " + frictionForceVec.ToString());
 	DrawDebugLine(GetWorld(), hitPos, hitPos + frictionForceVec, FColor::Blue, false);//friction force vector	
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::White, "velocity " + velocityAtHitPoint.ToString());
-	DrawDebugLine(GetWorld(), scene_damperPointTop->GetComponentLocation(), scene_damperPointTop->GetComponentLocation() + 
+	DrawDebugLine(GetWorld(), scene_damperPointTop->GetComponentLocation(), scene_damperPointTop->GetComponentLocation() +
 		mesh_wheel->GetPhysicsLinearVelocityAtPoint(hitPos), FColor::White, false);	//wheel velocity
 }
 

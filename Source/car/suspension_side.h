@@ -24,14 +24,14 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
 
-	void turnWheel(float axis);	
+	void TurnWheel(float axis);	
 private:
-	void RefreshBlock(float DeltaTime);
-	void addFrictionForce(float suspensionForce, const FVector& hitPos);
+	void UpdateSuspension(float DeltaTime);
+	void UpdateForceOnWheel(float suspensionForce, float deltaTime);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Block data")
-	UStaticMeshComponent* mesh_wheel;		
+	UMeshComponent* mesh_wheel;		
 protected:	
 	USceneComponent* scene_wheelCenter;
 	USceneComponent* scene_damperPointTop;
@@ -41,7 +41,8 @@ private:
 	float springForce;	
 	float damperForce;	
 	float suspensionForce;
-	float compressionSpeed;
+	float compressionVelocity;
+	float wheelSpinVelocity;
 	float reyLength;		
 	float currDamperLength;	
 	float maxDamperLength;		

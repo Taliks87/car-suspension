@@ -27,7 +27,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;		
 
-	void turnWheel(float axis);	
+	void TurnWheel(float axis);	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		float trackWidth;

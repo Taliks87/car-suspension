@@ -59,11 +59,10 @@ void USuspension::Init(float mass, const tools::FuncForce& funcAddForceAtbody)
 void USuspension::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {	
 	tools::DubugPoint(GetWorld(), GetComponentLocation(), FColor::Green, "Suss bar");
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);	
 }
 
-void USuspension::turnWheel(float axis)
+void USuspension::TurnWheel(float axis)
 {
 	if (axis != 0.0f)
 	{
@@ -71,8 +70,8 @@ void USuspension::turnWheel(float axis)
 		if (maxTurnAngle > abs(currTurnAngle + axis))
 		{
 			currTurnAngle += axis;
-			leftBlock->turnWheel(currTurnAngle);
-			rightBlock->turnWheel(currTurnAngle);
+			leftBlock->TurnWheel(currTurnAngle);
+			rightBlock->TurnWheel(currTurnAngle);
 		}
 	}
 }

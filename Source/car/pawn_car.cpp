@@ -63,44 +63,44 @@ void APawnCar::Tick(float DeltaTime)
 void APawnCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {	
 	Super::SetupPlayerInputComponent(PlayerInputComponent);	
-	InputComponent->BindAction("cam_move_left", IE_Pressed, this, &APawnCar::camMoveLeft);
-	InputComponent->BindAction("cam_move_right", IE_Pressed, this, &APawnCar::camMoveReight);
-	InputComponent->BindAxis("turn_left", this, &APawnCar::turnWheel);
-	InputComponent->BindAxis("turn_right", this, &APawnCar::turnWheel);
-	InputComponent->BindAxis("move_front", this, &APawnCar::moveCar);
-	InputComponent->BindAxis("move_back", this, &APawnCar::moveCar);
-	InputComponent->BindAxis("CameraYaw", this, &APawnCar::cameraYaw);
-	InputComponent->BindAxis("CameraPitch", this, &APawnCar::cameraPitch);
+	InputComponent->BindAction("cam_move_left", IE_Pressed, this, &APawnCar::CamMoveLeft);
+	InputComponent->BindAction("cam_move_right", IE_Pressed, this, &APawnCar::CamMoveReight);
+	InputComponent->BindAxis("turn_left", this, &APawnCar::TurnWheel);
+	InputComponent->BindAxis("turn_right", this, &APawnCar::TurnWheel);
+	InputComponent->BindAxis("move_front", this, &APawnCar::MoveCar);
+	InputComponent->BindAxis("move_back", this, &APawnCar::MoveCar);
+	InputComponent->BindAxis("CameraYaw", this, &APawnCar::CameraYaw);
+	InputComponent->BindAxis("CameraPitch", this, &APawnCar::CameraPitch);
 }
 
-void APawnCar::turnWheel(float axis)
+void APawnCar::TurnWheel(float axis)
 {
-	frontSuspensions->turnWheel(axis);
+	frontSuspensions->TurnWheel(axis);
 }
 
-void APawnCar::moveCar(float axis)
+void APawnCar::MoveCar(float axis)
 {	
 	//simple move
 	FVector v = GetActorRotation().RotateVector({ 0.0f, -500.0f * axis, 0.0f });	
 	mesh_body->AddForce(v, NAME_None, true);
 }
 
-void APawnCar::cameraYaw(float axis)
+void APawnCar::CameraYaw(float axis)
 {
 	cameraAxis.X = axis;
 }
 
-void APawnCar::cameraPitch(float axis)
+void APawnCar::CameraPitch(float axis)
 {
 	cameraAxis.Y = axis;
 }
 
-void APawnCar::camMoveLeft()
+void APawnCar::CamMoveLeft()
 {
 	springArm->AddRelativeLocation({ 0.0f, -100.0f, 0.0f });
 }
 
-void APawnCar::camMoveReight()
+void APawnCar::CamMoveReight()
 {
 	springArm->AddRelativeLocation({ 0.0f, 100.0f, 0.0f });
 }
