@@ -7,30 +7,30 @@
 
 namespace tools
 {
-	using FuncForce = std::function<void(FVector, FVector, FName)>;
-	struct CommonSuspensionData {
+	using FFuncForce = std::function<void(FVector, FVector, FName)>;
+	struct FCommonSuspensionData {
 
-		CommonSuspensionData(float _commonMass, float _relaxDamperLength, float _damperMove, float _stiffness, float _damper,
-			float _wheelRadius, float _wheelWidth, float _wheelMass, float _kpiAngle, float _frictionKof, const tools::FuncForce& _addForceAtBody);
+		FCommonSuspensionData(float _CommonMass, float _RelaxDamperLength, float _DamperMove, float _Stiffness, float _Damper,
+			float _WheelRadius, float _WheelWidth, float _WheelMass, float _KpiAngle, float _FrictionKof, const tools::FFuncForce& _AddForceAtBody);
 
-		float commonMass;
-		float relaxDamperLength;
-		float damperMove;
+		float CommonMass;
+		float RelaxDamperLength;
+		float DamperMove;
 		//stiffness can by calculate (G*r^4)/(4*n*R^3)
 		//G - shear modulus (mPa) 78500 mPa
 		//n - number of turns 5
 		//r - bar radius (mm) 6 mm
 		//R - coil radius (mm) 66 mm
 		//stiffness - H/mm (for UE4 need convert H/sm)
-		float stiffness; // Now is set by user
-		float damper;
-		float wheelRadius;
-		float wheelWidth;
-		float wheelMass;
-		float kpiAngle;
+		float Stiffness; // Now is set by user
+		float Damper;
+		float WheelRadius;
+		float WheelWidth;
+		float WheelMass;
+		float KpiAngle;
 		//frictionKof depend of surface
-		float frictionKof;
-		tools::FuncForce addForceAtBody;		
+		float FrictionKof;
+		tools::FFuncForce AddForceAtBody;		
 	};
-	using CommonSuspensionDataPtr = std::shared_ptr<CommonSuspensionData>;
+	using FCommonSuspensionDataPtr = std::shared_ptr<FCommonSuspensionData>;
 }

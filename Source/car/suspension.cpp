@@ -12,48 +12,48 @@
 
 // Sets default values for this component's properties
 USuspension::USuspension()
-	: trackWidth(1480.0f)
-	, relaxDamperLength(1000.0f)
-	, damperMove(400.0f)
-	, stiffness(4000.0f)
-	, damper(40000.0f)
-	, wheelRadius(440.0f)
-	, wheelWidth(350.0f)
-	, wheelMass(50.0f)
-	, kpiAngle(0.0f)
-	, frictionKof(1.0f)
-	, leftBlock()
-	, rightBlock()
-	, maxTurnAngle(45.0f)
-	, currTurnAngle(0.0f)
+	: TrackWidth(1480.0f)
+	, RelaxDamperLength(1000.0f)
+	, DamperMove(400.0f)
+	, Stiffness(4000.0f)
+	, Damper(40000.0f)
+	, WheelRadius(440.0f)
+	, WheelWidth(350.0f)
+	, WheelMass(50.0f)
+	, KpiAngle(0.0f)
+	, FrictionKof(1.0f)
+	, LeftBlock()
+	, RightBlock()
+	, MaxTurnAngle(45.0f)
+	, CurrTurnAngle(0.0f)
 {	
 	PrimaryComponentTick.bCanEverTick = true;
-	leftBlock = CreateDefaultSubobject<USuspensionSide>("leftBlock");
-	rightBlock = CreateDefaultSubobject<USuspensionSide>("rightBlock");	
-	leftBlock->SetupAttachment(this);
-	rightBlock->SetupAttachment(this);
+	LeftBlock = CreateDefaultSubobject<USuspensionSide>("leftBlock");
+	RightBlock = CreateDefaultSubobject<USuspensionSide>("rightBlock");	
+	LeftBlock->SetupAttachment(this);
+	RightBlock->SetupAttachment(this);
 }
 
 void USuspension::BeginPlay()
 {	
 	Super::BeginPlay();				
 	//set block pos
-	float halfTrackWidth = trackWidth / 2.0f;
-	FVector leftBlockPos = GetRelativeTransform().GetLocation();
-	leftBlockPos.X -= halfTrackWidth;
-	leftBlock->SetRelativeLocation({ -halfTrackWidth, 0.0f, 0.0f });
+	float HalfTrackWidth = TrackWidth / 2.0f;
+	FVector LeftBlockPos = GetRelativeTransform().GetLocation();
+	LeftBlockPos.X -= HalfTrackWidth;
+	LeftBlock->SetRelativeLocation({ -HalfTrackWidth, 0.0f, 0.0f });
 
-	FVector rightBlockPos = GetRelativeTransform().GetLocation();	
-	rightBlockPos.X -= halfTrackWidth;
-	rightBlock->SetRelativeLocation({ halfTrackWidth, 0.0f, 0.0f });	
+	FVector RightBlockPos = GetRelativeTransform().GetLocation();	
+	RightBlockPos.X -= HalfTrackWidth;
+	RightBlock->SetRelativeLocation({ HalfTrackWidth, 0.0f, 0.0f });	
 }
 
-void USuspension::Init(float mass, const tools::FuncForce& funcAddForceAtbody)
+void USuspension::Init(float mass, const tools::FFuncForce& funcAddForceAtbody)
 {
-	tools::CommonSuspensionDataPtr commonData = std::make_shared<tools::CommonSuspensionData>(mass, relaxDamperLength, damperMove, stiffness,
-		damper, wheelRadius, wheelWidth, wheelMass, kpiAngle, frictionKof, funcAddForceAtbody);
-	leftBlock->Init(commonData, true);
-	rightBlock->Init(commonData, false);
+	tools::FCommonSuspensionDataPtr commonData = std::make_shared<tools::FCommonSuspensionData>(mass, RelaxDamperLength, DamperMove, Stiffness,
+		Damper, WheelRadius, WheelWidth, WheelMass, KpiAngle, FrictionKof, funcAddForceAtbody);
+	LeftBlock->Init(commonData, true);
+	RightBlock->Init(commonData, false);
 }
 
 void USuspension::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -62,16 +62,16 @@ void USuspension::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);	
 }
 
-void USuspension::TurnWheel(float axis)
+void USuspension::TurnWheel(float Axis)
 {
-	if (axis != 0.0f)
+	if (Axis != 0.0f)
 	{
-		axis *= 1.0f;
-		if (maxTurnAngle > abs(currTurnAngle + axis))
+		Axis *= 1.0f;
+		if (MaxTurnAngle > abs(CurrTurnAngle + Axis))
 		{
-			currTurnAngle += axis;
-			leftBlock->TurnWheel(currTurnAngle);
-			rightBlock->TurnWheel(currTurnAngle);
+			CurrTurnAngle += Axis;
+			LeftBlock->TurnWheel(CurrTurnAngle);
+			RightBlock->TurnWheel(CurrTurnAngle);
 		}
 	}
 }

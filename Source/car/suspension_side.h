@@ -16,7 +16,7 @@ class CAR_API USuspensionSide : public USceneComponent
 public:	
 	// Sets default values for this component's properties
 	USuspensionSide();
-	void Init(tools::CommonSuspensionDataPtr& newSuspensionData, bool isLeftSide);
+	void Init(tools::FCommonSuspensionDataPtr& newSuspensionData, bool isLeftSide);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -27,28 +27,30 @@ public:
 	void TurnWheel(float axis);	
 private:
 	void UpdateSuspension(float DeltaTime);
-	void UpdateForceOnWheel(float suspensionForce, float deltaTime);
+	void UpdateForceOnWheel(float SuspensionForce, float DeltaTime);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Block data")
-	UMeshComponent* mesh_wheel;		
-protected:	
-	USceneComponent* scene_wheelCenter;
-	USceneComponent* scene_damperPointTop;
-	USceneComponent* scene_damperPointBot;
+	UMeshComponent* MeshWheel;		
+	UPROPERTY()
+	USceneComponent* SceneWheelCenter;
+	UPROPERTY()
+	USceneComponent* SceneDamperPointTop;
+	UPROPERTY()
+	USceneComponent* SceneDamperPointBot;
 private:	
-	bool isLeft;
-	float springForce;	
-	float damperForce;	
-	float suspensionForce;
-	float compressionVelocity;
-	float wheelSpinVelocity;
-	float reyLength;		
-	float currDamperLength;	
-	float maxDamperLength;		
-	float minDamperLength;		
+	bool bIsLeft;
+	float SpringForce;	
+	float DamperForce;	
+	float SuspensionForce;
+	float CompressionVelocity;
+	float WheelSpinVelocity;
+	float ReyLength;		
+	float CurrDamperLength;	
+	float MaxDamperLength;		
+	float MinDamperLength;		
 	
-	tools::CommonSuspensionDataPtr data;
+	tools::FCommonSuspensionDataPtr Data;
 
-	FCollisionQueryParams collisionParams;
+	FCollisionQueryParams CollisionParams;
 };

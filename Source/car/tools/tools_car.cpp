@@ -2,19 +2,19 @@
 
 namespace tools
 {
-	CommonSuspensionData::CommonSuspensionData(float _commonMass, float _relaxDamperLength, float _damperMove, float _stiffness, float _damper,
-		float _wheelRadius, float _wheelWidth, float _wheelMass, float _kpiAngle, float _frictionKof, const tools::FuncForce& _addForceAtBody)
-		: commonMass(_commonMass)
-		, relaxDamperLength(_relaxDamperLength)
-		, damperMove(_damperMove)
-		, stiffness(_stiffness)
-		, damper(_damper)
-		, wheelRadius(_wheelRadius)
-		, wheelWidth(_wheelWidth)
-		, wheelMass(_wheelMass)
-		, kpiAngle(_kpiAngle)
-		, frictionKof(_frictionKof)
-		, addForceAtBody(_addForceAtBody)
+	FCommonSuspensionData::FCommonSuspensionData(float _CommonMass, float _RelaxDamperLength, float _DamperMove, float _Stiffness, float _Damper,
+		float _WheelRadius, float _WheelWidth, float _WheelMass, float _KpiAngle, float _FrictionKof, const tools::FFuncForce& _AddForceAtBody)
+		: CommonMass(_CommonMass)
+		, RelaxDamperLength(_RelaxDamperLength)
+		, DamperMove(_DamperMove)
+		, Stiffness(_Stiffness)
+		, Damper(_Damper)
+		, WheelRadius(_WheelRadius)
+		, WheelWidth(_WheelWidth)
+		, WheelMass(_WheelMass)
+		, KpiAngle(_KpiAngle)
+		, FrictionKof(_FrictionKof)
+		, AddForceAtBody(_AddForceAtBody)
 	{
 
 	}

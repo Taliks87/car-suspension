@@ -18,7 +18,7 @@ class CAR_API USuspension : public USceneComponent
 public:	
 	// Sets default values for this component's properties
 	USuspension();
-	void Init(float mass, const tools::FuncForce& funcAddForceAtbody);
+	void Init(float Mass, const tools::FFuncForce& FuncAddForceAtbody);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -27,34 +27,34 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;		
 
-	void TurnWheel(float axis);	
+	void TurnWheel(float Axis);	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float trackWidth;
+		float TrackWidth;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float relaxDamperLength;
+		float RelaxDamperLength;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float damperMove;
+		float DamperMove;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float stiffness;
+		float Stiffness;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float damper;
+		float Damper;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float wheelRadius;
+		float WheelRadius;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float wheelWidth;
+		float WheelWidth;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float wheelMass;
+		float WheelMass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float kpiAngle;
+		float KpiAngle;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float frictionKof;
+		float FrictionKof;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		USuspensionSide* leftBlock;	
+		USuspensionSide* LeftBlock;	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		USuspensionSide* rightBlock;
+		USuspensionSide* RightBlock;
 private:
-	float maxTurnAngle;
-	float currTurnAngle;
+	float MaxTurnAngle;
+	float CurrTurnAngle;
 };
