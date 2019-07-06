@@ -139,7 +139,8 @@ void USuspensionSide::UpdateSuspension(float DeltaTime)
 		}			
 	}
 	else {
-		MotionLength = MaxMotionLength;
+		//Divide by 4.0 for more soft changes suspension length
+		MotionLength = MaxMotionLength/4.0f;
 	}
 	CompressionVelocity = MotionLength / DeltaTime;
 
@@ -191,10 +192,10 @@ void USuspensionSide::UpdateForceOnWheel(float suspensionForces, float deltaTime
 	FrictionForceVec = TrWheelCenter.GetRotation().RotateVector(FrictionForceVec);
 	Data->AddForceAtBody(FrictionForceVec, HitPos, NAME_None);
 	//update wheel spin
-	WheelSpinVelocity = VelocityAtHitPoint.Y / (Data->WheelRadius * 2 * PI) * 360.0f;
+	WheelSpinVelocity = VelocityAtHitPoint.Y / (Data->WheelRadius * 2.0f * PI) * 360.0f;
 
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "frictionForceVec " + FrictionForceVec.ToString());
-	DrawDebugLine(GetWorld(), HitPos, HitPos + FrictionForceVec, FColor::Blue, false);//friction force vector	
+	DrawDebugLine(GetWorld(), HitPos, HitPos + FrictionForceVec/2.0f, FColor::Blue, false);//friction force vector	
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::White, "velocity " + VelocityAtHitPoint.ToString());
 	DrawDebugLine(GetWorld(), SceneDamperPointTop->GetComponentLocation(), SceneDamperPointTop->GetComponentLocation() +
 		MeshWheel->GetPhysicsLinearVelocityAtPoint(HitPos), FColor::White, false);	//wheel velocity

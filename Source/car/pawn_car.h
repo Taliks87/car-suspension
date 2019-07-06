@@ -32,8 +32,9 @@ private:
 	void TurnWheel(float Axis);	
 	void MoveCar(float Axis);
 	void CameraPitch(float Axis);
-	void CamMoveLeft();
-	void CamMoveReight();
+	void CameraZoom(float Axis);
+	void CamMoveFront();
+	void CamMoveBack();
 	
 protected:
 	UPROPERTY(EditAnywhere, Category = "Car data")
@@ -41,7 +42,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
 		float Mass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
-		FVector2D WeightDistribution;	
+		FVector WeightDistribution;	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
 		USuspension* FrontSuspensions;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
