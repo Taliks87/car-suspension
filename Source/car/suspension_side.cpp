@@ -187,7 +187,7 @@ void USuspensionSide::UpdateForceOnWheel(float suspensionForces, float deltaTime
 	//update frictio force
 	float FrictioForce = VelocityAtHitPoint.X * Data->FrictionKof * SuspensionForce;
 	float MaxFrictioForce = VelocityAtHitPoint.X * Data->CommonMass;
-	if (abs(FrictioForce) > abs(MaxFrictioForce)) FrictioForce = MaxFrictioForce;
+	if (fabs(FrictioForce) > fabs(MaxFrictioForce)) FrictioForce = MaxFrictioForce;
 	FrictionForceVec = { -FrictioForce, 0.0f, 0.0f };
 	FrictionForceVec = TrWheelCenter.GetRotation().RotateVector(FrictionForceVec);
 	Data->AddForceAtBody(FrictionForceVec, HitPos, NAME_None);

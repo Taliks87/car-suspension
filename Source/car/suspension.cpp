@@ -67,7 +67,7 @@ void USuspension::TurnWheel(float Axis)
 	if (Axis != 0.0f)
 	{
 		Axis *= 1.0f;
-		if (MaxTurnAngle > abs(CurrTurnAngle + Axis))
+		if (MaxTurnAngle > fabs(CurrTurnAngle + Axis))
 		{
 			CurrTurnAngle += Axis;
 			LeftBlock->TurnWheel(CurrTurnAngle);
