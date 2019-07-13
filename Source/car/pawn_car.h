@@ -28,27 +28,29 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 private:	
-	void cameraYaw(float axis);
-	void turnWheel(float axis);	
-	void moveCar(float axis);
-	void cameraPitch(float axis);
-	void camMoveLeft();
-	void camMoveReight();
+	void CameraYaw(float Axis);
+	void TurnWheel(float Axis);	
+	void MoveCar(float Axis);
+	void CameraPitch(float Axis);
+	void CameraZoom(float Axis);
+	void CamMoveFront();
+	void CamMoveBack();
 	
 protected:
 	UPROPERTY(EditAnywhere, Category = "Car data")
-		UStaticMeshComponent* mesh_body;	
+		UStaticMeshComponent* MeshBody;	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
-		float mass;//kg
+		float Mass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
-		FVector2D weightDistribution;//kofficent	
+		FVector WeightDistribution;	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
-		USuspension* frontSuspensions;
+		USuspension* FrontSuspensions;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
-		USuspension* rearSuspensions;	
+		USuspension* RearSuspensions;	
 	UPROPERTY(EditAnywhere)
-		USpringArmComponent* springArm;
-	UCameraComponent* camera;	
+		USpringArmComponent* SpringArm;
+	UPROPERTY(EditAnywhere)
+		UCameraComponent* Camera;	
 
-	FVector2D cameraAxis;
+	FVector2D CameraAxis;
 };

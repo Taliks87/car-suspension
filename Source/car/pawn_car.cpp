@@ -7,102 +7,110 @@
 
 // Sets default values
 APawnCar::APawnCar()
-	: mesh_body()
-	, mass(1300.0f)
-	, weightDistribution(0.3f, 0.1f)
-	, frontSuspensions()
-	, rearSuspensions()
-	, springArm()
-	, camera()	
+	: MeshBody()
+	, Mass(1300.0f)
+	, WeightDistribution(0.0f, -1000.0f, -300.0f)
+	, FrontSuspensions()
+	, RearSuspensions()
+	, SpringArm()
+	, Camera()	
 {
  	PrimaryActorTick.bCanEverTick = true;
-	mesh_body = CreateDefaultSubobject<UStaticMeshComponent>("mesh_body");		
-	frontSuspensions = CreateDefaultSubobject<USuspension>("front_suspension");
-	rearSuspensions = CreateDefaultSubobject<USuspension>("rear_suspension");
+	MeshBody = CreateDefaultSubobject<UStaticMeshComponent>("mesh_body");		
+	FrontSuspensions = CreateDefaultSubobject<USuspension>("front_suspension");
+	RearSuspensions = CreateDefaultSubobject<USuspension>("rear_suspension");
 		
-	RootComponent = mesh_body;
-	mesh_body->SetSimulatePhysics(true);
-	frontSuspensions->SetupAttachment(mesh_body);
-	rearSuspensions->SetupAttachment(mesh_body);	
+	RootComponent = MeshBody;
+	MeshBody->SetSimulatePhysics(true);
+	FrontSuspensions->SetupAttachment(MeshBody);
+	RearSuspensions->SetupAttachment(MeshBody);	
 	
-	frontSuspensions->SetRelativeLocation({ 0.0f, -1800.0f, -730.0f });
-	rearSuspensions->SetRelativeLocation({ 0.0f, 1950.0f, -730.0f });
+	FrontSuspensions->SetRelativeLocation({ 0.0f, -1800.0f, -730.0f });
+	RearSuspensions->SetRelativeLocation({ 0.0f, 1950.0f, -730.0f });
 
 	//Init camera
-	springArm = CreateDefaultSubobject<USpringArmComponent>("spring_arm_camera");
-	camera = CreateDefaultSubobject<UCameraComponent>("camera");
-	springArm->TargetArmLength = 4000.0f;
-	springArm->SetupAttachment(mesh_body);
-	camera->SetupAttachment(springArm);
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>("spring_arm_camera");
+	Camera = CreateDefaultSubobject<UCameraComponent>("camera");
+	SpringArm->TargetArmLength = 4000.0f;
+	SpringArm->SetupAttachment(MeshBody);
+	Camera->SetupAttachment(SpringArm);
 	
-	springArm->bEnableCameraLag = true;
-	springArm->CameraLagSpeed = 6.0f;
-	springArm->bDrawDebugLagMarkers = true;
+	SpringArm->bEnableCameraLag = true;
+	SpringArm->CameraLagSpeed = 6.0f;
+	SpringArm->bDrawDebugLagMarkers = true;
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
 
 void APawnCar::BeginPlay()
 {	
-	mesh_body->SetMassOverrideInKg(NAME_None, mass);	
-	mesh_body->SetCenterOfMass({ weightDistribution.X , weightDistribution.Y, 0.0f });
-	auto f = std::bind(&UStaticMeshComponent::AddForceAtLocation, mesh_body, std::placeholders::_1, std::placeholders::_2, NAME_None);
-	frontSuspensions->Init(mass, f);
-	rearSuspensions->Init(mass, f);
+	MeshBody->SetMassOverrideInKg(NAME_None, Mass);	
+	MeshBody->SetCenterOfMass(WeightDistribution);
+	auto FuncAddForceAtbody = std::bind(&UStaticMeshComponent::AddForceAtLocation, MeshBody, std::placeholders::_1, std::placeholders::_2, NAME_None);
+	FrontSuspensions->Init(Mass, FuncAddForceAtbody);
+	RearSuspensions->Init(Mass, FuncAddForceAtbody);
 	Super::BeginPlay();		
 }
 
 void APawnCar::Tick(float DeltaTime)
-{
+{	
 	GEngine->ClearOnScreenDebugMessages();	
-	frontSuspensions->TickComponent(DeltaTime, LEVELTICK_All, nullptr);
-	rearSuspensions->TickComponent(DeltaTime, LEVELTICK_All, nullptr);
 	Super::Tick(DeltaTime);
 
-	springArm->AddRelativeRotation({ cameraAxis.Y, cameraAxis.X, 0.0f });	
+	SpringArm->AddRelativeRotation({ CameraAxis.Y, CameraAxis.X, 0.0f });	
 }
 
 // Called to bind functionality to input
 void APawnCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {	
 	Super::SetupPlayerInputComponent(PlayerInputComponent);	
-	InputComponent->BindAction("cam_move_left", IE_Pressed, this, &APawnCar::camMoveLeft);
-	InputComponent->BindAction("cam_move_right", IE_Pressed, this, &APawnCar::camMoveReight);
-	InputComponent->BindAxis("turn_left", this, &APawnCar::turnWheel);
-	InputComponent->BindAxis("turn_right", this, &APawnCar::turnWheel);
-	InputComponent->BindAxis("move_front", this, &APawnCar::moveCar);
-	InputComponent->BindAxis("move_back", this, &APawnCar::moveCar);
-	InputComponent->BindAxis("CameraYaw", this, &APawnCar::cameraYaw);
-	InputComponent->BindAxis("CameraPitch", this, &APawnCar::cameraPitch);
+	InputComponent->BindAction("cam_move_front", IE_Pressed, this, &APawnCar::CamMoveFront);
+	InputComponent->BindAction("cam_move_back", IE_Pressed, this, &APawnCar::CamMoveBack);
+	InputComponent->BindAxis("turn_left", this, &APawnCar::TurnWheel);
+	InputComponent->BindAxis("turn_right", this, &APawnCar::TurnWheel);
+	InputComponent->BindAxis("move_front", this, &APawnCar::MoveCar);
+	InputComponent->BindAxis("move_back", this, &APawnCar::MoveCar);
+	InputComponent->BindAxis("camera_yaw", this, &APawnCar::CameraYaw);
+	InputComponent->BindAxis("camera_pitch", this, &APawnCar::CameraPitch);
+	InputComponent->BindAxis("camera_zoom", this, &APawnCar::CameraZoom);
 }
 
-void APawnCar::turnWheel(float axis)
+void APawnCar::TurnWheel(float axis)
 {
-	frontSuspensions->turnWheel(axis);
+	FrontSuspensions->TurnWheel(axis);
 }
 
-void APawnCar::moveCar(float axis)
+void APawnCar::MoveCar(float axis)
 {	
 	//simple move
-	FVector v = GetActorRotation().RotateVector({ 0.0f, -500.0f * axis, 0.0f });	
-	mesh_body->AddForce(v, NAME_None, true);
+	FVector MoveVec = GetActorRotation().RotateVector({ 0.0f, -1000.0f * axis, 0.0f });	
+	MeshBody->AddForce(MoveVec, NAME_None, true);
 }
 
-void APawnCar::cameraYaw(float axis)
+void APawnCar::CameraYaw(float Axis)
 {
-	cameraAxis.X = axis;
+	CameraAxis.X = Axis;
 }
 
-void APawnCar::cameraPitch(float axis)
+void APawnCar::CameraPitch(float Axis)
 {
-	cameraAxis.Y = axis;
+	CameraAxis.Y = Axis;
 }
 
-void APawnCar::camMoveLeft()
+void APawnCar::CameraZoom(float Axis)
 {
-	springArm->AddRelativeLocation({ 0.0f, -100.0f, 0.0f });
+	float& ArmLength = SpringArm->TargetArmLength;
+	ArmLength += Axis*-200.0f;
+	if (ArmLength > 10000.0f) ArmLength = 10000.0f;
+	else if (ArmLength < 3500.0f) ArmLength = 3500.0f;
 }
 
-void APawnCar::camMoveReight()
+void APawnCar::CamMoveFront()
 {
-	springArm->AddRelativeLocation({ 0.0f, 100.0f, 0.0f });
+	SpringArm->AddRelativeLocation({ 0.0f, -100.0f, 0.0f });
 }
+
+void APawnCar::CamMoveBack()
+{
+	SpringArm->AddRelativeLocation({ 0.0f, 100.0f, 0.0f });
+}
+
