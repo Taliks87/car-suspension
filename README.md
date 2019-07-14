@@ -6,7 +6,7 @@ Use Ray Cast for modeling suspension of car.
 
 Control:
 
-Camera - mouse
+Move mouse - camera control
 
 W - speeding front
 
