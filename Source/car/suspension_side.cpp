@@ -38,7 +38,7 @@ USuspensionSide::USuspensionSide()
 	CollisionParams.AddIgnoredActor(this->GetAttachmentRootActor());
 }
 
-void USuspensionSide::Init(tools::FCommonSuspensionDataPtr& newSuspensionData, bool isLeftSide)
+void USuspensionSide::Init(const FCommonSuspensionDataPtr& newSuspensionData, bool isLeftSide)
 {
 	bIsLeft = isLeftSide;
 	Data = newSuspensionData;
@@ -169,7 +169,7 @@ void USuspensionSide::UpdateSuspension(float DeltaTime)
 	WheelSpinVelocity -= WheelSpinVelocity * (0.1f * DeltaTime);//fake friction on a wheel 
 	MeshWheel->AddRelativeRotation({ 0.0f, 0.0f, WheelSpinVelocity * DeltaTime });
 			
-	//Debug point
+	//Debug output
 	tools::DubugPoint(GetWorld(), SceneDamperPointBot->GetComponentLocation(), FColor::Green, "damper bot");
 	tools::DubugPoint(GetWorld(), SceneDamperPointTop->GetComponentLocation(), FColor::Green, "damper top");			
 	tools::DubugPointOnScreen(GetWorld(), WheelCenterLoc, FColor::Green, "wheel center");
@@ -191,9 +191,11 @@ void USuspensionSide::UpdateForceOnWheel(float suspensionForces, float deltaTime
 	FrictionForceVec = { -FrictioForce, 0.0f, 0.0f };
 	FrictionForceVec = TrWheelCenter.GetRotation().RotateVector(FrictionForceVec);
 	Data->AddForceAtBody(FrictionForceVec, HitPos, NAME_None);
+
 	//update wheel spin
 	WheelSpinVelocity = VelocityAtHitPoint.Y / (Data->WheelRadius * 2.0f * PI) * 360.0f;
 
+	//Debug output
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "frictionForceVec " + FrictionForceVec.ToString());
 	DrawDebugLine(GetWorld(), HitPos, HitPos + FrictionForceVec/2.0f, FColor::Blue, false);//friction force vector	
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::White, "velocity " + VelocityAtHitPoint.ToString());

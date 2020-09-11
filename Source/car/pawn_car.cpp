@@ -59,7 +59,6 @@ void APawnCar::Tick(float DeltaTime)
 	SpringArm->AddRelativeRotation({ CameraAxis.Y, CameraAxis.X, 0.0f });	
 }
 
-// Called to bind functionality to input
 void APawnCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {	
 	Super::SetupPlayerInputComponent(PlayerInputComponent);	

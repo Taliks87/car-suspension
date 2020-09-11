@@ -1,16 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
-
-#include "tools/tools_car.h"
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
+#include "suspension_side.h"
+
 #include "suspension.generated.h"
 
-class USuspensionSide;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup = (Custom) )
 class CAR_API USuspension : public USceneComponent
 {	
 	GENERATED_BODY()
@@ -18,14 +15,14 @@ class CAR_API USuspension : public USceneComponent
 public:	
 	// Sets default values for this component's properties
 	USuspension();
-	void Init(float Mass, const tools::FFuncForce& FuncAddForceAtbody);
+	void Init(float Mass, const FFuncForce& FuncAddForceAtbody);
 protected:
 	// Called when the game starts
-	virtual void BeginPlay() override;
+	void BeginPlay() override;
 	
 public:
 	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;		
+	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;		
 
 	void TurnWheel(float Axis);	
 protected:

@@ -48,10 +48,10 @@ void USuspension::BeginPlay()
 	RightBlock->SetRelativeLocation({ HalfTrackWidth, 0.0f, 0.0f });	
 }
 
-void USuspension::Init(float mass, const tools::FFuncForce& funcAddForceAtbody)
+void USuspension::Init(float mass, const FFuncForce& funcAddForceAtbody)
 {
-	tools::FCommonSuspensionDataPtr commonData = std::make_shared<tools::FCommonSuspensionData>(mass, RelaxDamperLength, DamperMove, Stiffness,
-		Damper, WheelRadius, WheelWidth, WheelMass, KpiAngle, FrictionKof, funcAddForceAtbody);
+	FCommonSuspensionDataPtr commonData(new FCommonSuspensionData{ mass, RelaxDamperLength, DamperMove, Stiffness,
+		Damper, WheelRadius, WheelWidth, WheelMass, KpiAngle, FrictionKof, funcAddForceAtbody });
 	LeftBlock->Init(commonData, true);
 	RightBlock->Init(commonData, false);
 }

@@ -1,8 +1,9 @@
 # car suspension
 
-Developed with Unreal Engine 4.
+Developed with Unreal Engine 4.22.3
 
 Use Ray Cast for modeling suspension of car.
+Move and Friction using simple mechanic.
 
 Control:
 
