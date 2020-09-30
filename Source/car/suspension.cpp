@@ -20,6 +20,7 @@ USuspension::USuspension()
 	, WheelRadius(440.0f)
 	, WheelWidth(350.0f)
 	, WheelMass(50.0f)
+	, WheelSpringiness(0.25f)
 	, KpiAngle(0.0f)
 	, FrictionKof(1.0f)
 	, LeftBlock()
@@ -51,7 +52,7 @@ void USuspension::BeginPlay()
 void USuspension::Init(float mass, const FFuncForce& funcAddForceAtbody)
 {
 	FCommonSuspensionDataPtr commonData(new FCommonSuspensionData{ mass, RelaxDamperLength, DamperMove, Stiffness,
-		Damper, WheelRadius, WheelWidth, WheelMass, KpiAngle, FrictionKof, funcAddForceAtbody });
+		Damper, WheelRadius, WheelWidth, WheelMass, WheelSpringiness, KpiAngle, FrictionKof, funcAddForceAtbody });
 	LeftBlock->Init(commonData, true);
 	RightBlock->Init(commonData, false);
 }

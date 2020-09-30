@@ -101,7 +101,7 @@ void USuspensionSide::UpdateSuspension(float DeltaTime)
 			const auto& EndPoint = StartPoint + VecToWheelTop * -(Data->WheelRadius + Data->DamperMove);
 
 			bool bIsHit = GetWorld()->LineTraceSingleByChannel(OutHit, StartPoint, EndPoint, ECC_WorldStatic, CollisionParams);
-			if (bIsHit && OutHit.bBlockingHit && GEngine)
+			if (bIsHit && OutHit.bBlockingHit)
 			{
 				if (OutHit.Distance < HitDistance)
 				{
@@ -138,9 +138,8 @@ void USuspensionSide::UpdateSuspension(float DeltaTime)
 			if (MotionLength < minMotionLength) MotionLength = minMotionLength;				
 		}			
 	}
-	else {
-		//Divide by 4.0 for more soft changes suspension length
-		MotionLength = MaxMotionLength/4.0f;
+	else {		
+		MotionLength = MaxMotionLength * Data->WheelSpringiness;
 	}
 	CompressionVelocity = MotionLength / DeltaTime;
 
@@ -159,10 +158,13 @@ void USuspensionSide::UpdateSuspension(float DeltaTime)
 		FVector SuspensionForceVec = SceneDamperPointTop->GetForwardVector() * (-SuspensionForce);
 		Data->AddForceAtBody(SuspensionForceVec, SceneDamperPointTop->GetComponentLocation(), NAME_None);
 
-		//Debug info
+		//Debug output
 		DrawDebugLine(GetWorld(), SceneDamperPointTop->GetComponentLocation(), SceneDamperPointTop->GetComponentLocation() +
 			SuspensionForceVec / 100.0f, FColor::Blue, false);
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "suspensionForceVec " + SuspensionForceVec.ToString());
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Blue, "suspensionForceVec " + SuspensionForceVec.ToString());
+		}		
 	}
 
 	//set wheel spin velocity
@@ -171,9 +173,12 @@ void USuspensionSide::UpdateSuspension(float DeltaTime)
 			
 	//Debug output
 	tools::DubugPoint(GetWorld(), SceneDamperPointBot->GetComponentLocation(), FColor::Green, "damper bot");
-	tools::DubugPoint(GetWorld(), SceneDamperPointTop->GetComponentLocation(), FColor::Green, "damper top");			
+	tools::DubugPoint(GetWorld(), SceneDamperPointTop->GetComponentLocation(), FColor::Green, "damper top");				
 	tools::DubugPointOnScreen(GetWorld(), WheelCenterLoc, FColor::Green, "wheel center");
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Purple, this->GetName());
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Purple, this->GetName());
+	}	
 }
 
 void USuspensionSide::UpdateForceOnWheel(float suspensionForces, float deltaTime)

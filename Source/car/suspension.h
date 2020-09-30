@@ -43,6 +43,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		float WheelMass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
+		float WheelSpringiness;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		float KpiAngle;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		float FrictionKof;

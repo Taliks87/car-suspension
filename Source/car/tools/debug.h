@@ -16,7 +16,10 @@ namespace tools
 	{
 		DrawDebugPoint(world, pos, 15.0f, color, false, 0.001f);
 		DrawDebugString(world, pos + FVector{ 0.0f, 0.0f, 30.0f }, text, nullptr, color, 0.001f);
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, color, text + " " + pos.ToString());
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, color, text + " " + pos.ToString());
+		}		
 	}
 }
 //#endif // TOOLS_DEBUG_H

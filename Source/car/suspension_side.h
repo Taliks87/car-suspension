@@ -26,7 +26,8 @@ struct FCommonSuspensionData {
 	float WheelRadius;
 	float WheelWidth;
 	float WheelMass;
-	float KpiAngle;
+	float WheelSpringiness;
+	float KpiAngle;	
 	//frictionKof depend of surface
 	float FrictionKof;
 	FFuncForce AddForceAtBody;
