@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
-#include "suspension_side.generated.h"
+#include "SuspensionBlockComponent.generated.h"
 
 using FFuncForce = std::function<void(FVector, FVector, FName)>;
 
@@ -36,12 +36,12 @@ using FCommonSuspensionDataPtr = TSharedPtr<FCommonSuspensionData>;
 
 
 UCLASS(ClassGroup = (Custom))
-class CAR_API USuspensionSide : public USceneComponent
+class CAR_API USuspensionBlockComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
 public:
-	USuspensionSide();
+	USuspensionBlockComponent();
 	void Init(const FCommonSuspensionDataPtr& newSuspensionData, bool isLeftSide);
 protected:
 	void BeginPlay() override;

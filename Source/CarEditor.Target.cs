@@ -3,12 +3,12 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class carEditorTarget : TargetRules
+public class CarEditorTarget : TargetRules
 {
-	public carEditorTarget(TargetInfo Target) : base(Target)
+	public CarEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
 
-		ExtraModuleNames.AddRange( new string[] { "car" } );
+		ExtraModuleNames.AddRange( new string[] { "Car" } );
 	}
 }

@@ -1,17 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-#include "suspension.h"
+#include "SuspensionComponent.h"
 
 #include <string>
 #include <memory>
 
 #include "tools/debug.h"
-#include "suspension_side.h"
+#include "SuspensionBlockComponent.h"
 
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "Engine.h"
 
+
 // Sets default values for this component's properties
-USuspension::USuspension()
+USuspensionComponent::USuspensionComponent()
 	: TrackWidth(1480.0f)
 	, RelaxDamperLength(1000.0f)
 	, DamperMove(400.0f)
@@ -29,13 +30,13 @@ USuspension::USuspension()
 	, CurrTurnAngle(0.0f)
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	LeftBlock = CreateDefaultSubobject<USuspensionSide>("leftBlock");
-	RightBlock = CreateDefaultSubobject<USuspensionSide>("rightBlock");
+	LeftBlock = CreateDefaultSubobject<USuspensionBlockComponent>("leftBlock");
+	RightBlock = CreateDefaultSubobject<USuspensionBlockComponent>("rightBlock");
 	LeftBlock->SetupAttachment(this);
 	RightBlock->SetupAttachment(this);
 }
 
-void USuspension::BeginPlay()
+void USuspensionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	//set block pos
@@ -49,21 +50,21 @@ void USuspension::BeginPlay()
 	RightBlock->SetRelativeLocation({ HalfTrackWidth, 0.0f, 0.0f });
 }
 
-void USuspension::Init(float mass, const FFuncForce& funcAddForceAtbody)
+void USuspensionComponent::Init(float mass, const FFuncForce& funcAddForceAtbody)
 {
-	FCommonSuspensionDataPtr commonData(new FCommonSuspensionData{ mass, RelaxDamperLength, DamperMove, Stiffness,
+	FCommonSuspensionDataPtr CommonData(new FCommonSuspensionData{ mass, RelaxDamperLength, DamperMove, Stiffness,
 		Damper, WheelRadius, WheelWidth, WheelMass, WheelSpringiness, KpiAngle, FrictionKof, funcAddForceAtbody });
-	LeftBlock->Init(commonData, true);
-	RightBlock->Init(commonData, false);
+	LeftBlock->Init(CommonData, true);
+	RightBlock->Init(CommonData, false);
 }
 
-void USuspension::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void USuspensionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	tools::DubugPoint(GetWorld(), GetComponentLocation(), FColor::Green, "Suss bar");
+	tools::DebugPoint(GetWorld(), GetComponentLocation(), FColor::Green, "Suss bar");
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void USuspension::TurnWheel(float Axis)
+void USuspensionComponent::TurnWheel(float Axis)
 {
 	if (Axis != 0.0f)
 	{

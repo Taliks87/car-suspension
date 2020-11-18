@@ -3,12 +3,12 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class carTarget : TargetRules
+public class CarTarget : TargetRules
 {
-	public carTarget(TargetInfo Target) : base(Target)
+	public CarTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
 
-		ExtraModuleNames.AddRange( new string[] { "car" } );
+		ExtraModuleNames.AddRange( new string[] { "Car" } );
 	}
 }

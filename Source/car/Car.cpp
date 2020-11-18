@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "car.h"
+#include "Car.h"
 #include "Modules/ModuleManager.h"
 
-IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, car, "car" );
+IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, Car, "Car" );

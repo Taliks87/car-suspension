@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "carGameModeBase.generated.h"
+#include "CarGameModeBase.generated.h"
 
 /**
  * 
@@ -13,8 +13,4 @@ UCLASS()
 class CAR_API AcarGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
-	
-	
-	
 };

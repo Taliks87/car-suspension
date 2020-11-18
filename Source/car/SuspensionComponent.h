@@ -2,19 +2,19 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
-#include "suspension_side.h"
+#include "SuspensionBlockComponent.h"
 
-#include "suspension.generated.h"
+#include "SuspensionComponent.generated.h"
 
 
 UCLASS( ClassGroup = (Custom) )
-class CAR_API USuspension : public USceneComponent
+class CAR_API USuspensionComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this component's properties
-	USuspension();
+	USuspensionComponent();
 	void Init(float Mass, const FFuncForce& FuncAddForceAtbody);
 protected:
 	// Called when the game starts
@@ -27,32 +27,43 @@ public:
 	void TurnWheel(float Axis);
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float TrackWidth;
+	float TrackWidth;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float RelaxDamperLength;
+	float RelaxDamperLength;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float DamperMove;
+	float DamperMove;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float Stiffness;
+	float Stiffness;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float Damper;
+	float Damper;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float WheelRadius;
+	float WheelRadius;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float WheelWidth;
+	float WheelWidth;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float WheelMass;
+	float WheelMass;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float WheelSpringiness;
+	float WheelSpringiness;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float KpiAngle;
+	float KpiAngle;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		float FrictionKof;
-
+	float FrictionKof;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		USuspensionSide* LeftBlock;
+	USuspensionBlockComponent* LeftBlock;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		USuspensionSide* RightBlock;
+	USuspensionBlockComponent* RightBlock;
 private:
 	float MaxTurnAngle;
 	float CurrTurnAngle;

@@ -6,22 +6,22 @@
 #include "GameFramework/Pawn.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "pawn_car.generated.h"
+#include "CarPawn.generated.h"
 
-class USuspension;
+class USuspensionComponent;
 
 UCLASS(Blueprintable)
-class CAR_API APawnCar : public APawn
+class CAR_API ACarPawn : public APawn
 {
 	GENERATED_BODY()
 
 public:
-	APawnCar();
+	ACarPawn();
 protected:
-	void BeginPlay() override;
+	virtual void BeginPlay() override;
 public:
-	void Tick(float DeltaTime) override;
-	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void Tick(float DeltaTime) override;
+	virtual	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 private:
 	void CameraYaw(float Axis);
 	void TurnWheel(float Axis);
@@ -33,26 +33,26 @@ private:
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Car data")
-		UStaticMeshComponent* MeshBody;
+	UStaticMeshComponent* MeshBodyComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
-		float Mass;
+	float Mass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
-		FVector WeightDistribution;
+	FVector WeightDistribution;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
-		USuspension* FrontSuspensions;
+	USuspensionComponent* FrontSuspensionsComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car data")
-		USuspension* RearSuspensions;
-
-	UPROPERTY(EditAnywhere)
-		USpringArmComponent* SpringArm;
-
-	UPROPERTY(EditAnywhere)
-		UCameraComponent* Camera;
+	USuspensionComponent* RearSuspensionsComponent;
 
 	UPROPERTY()
-		FVector2D CameraAxis;
+	USpringArmComponent* SpringArmComponent;
+
+	UPROPERTY()
+	UCameraComponent* CameraComponent;
+
+	UPROPERTY()
+	FVector2D CameraAxis;
 };

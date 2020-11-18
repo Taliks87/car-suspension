@@ -1,9 +1,9 @@
 # car suspension
 
-Developed with Unreal Engine 4.22.3
+Developed with Unreal Engine 4.22.3(update to 4.25.4)
 
 Use Ray Cast for modeling suspension of car.
-Move and Friction using simple mechanic.
+Move and Friction using very simple mechanic.
 
 Control:
 
@@ -23,4 +23,4 @@ Setup pawnCar in editor:
 - in section "car data" -> [name suspension] -> "suspension data" -> [name block] -> "block data"
 
 Note:
-"Kpi angle" in section "car data" -> [name suspension] -> "suspension data" don't work yet.
+"Kpi angle" in section "car data" -> [name suspension] -> "suspension data" - don't work yet.

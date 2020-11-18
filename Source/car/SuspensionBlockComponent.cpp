@@ -1,4 +1,4 @@
-#include "suspension_side.h"
+#include "SuspensionBlockComponent.h"
 
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
@@ -7,7 +7,7 @@
 #include "tools/debug.h"
 
 // Sets default values for this component's properties
-USuspensionSide::USuspensionSide()
+USuspensionBlockComponent::USuspensionBlockComponent()
 	: MeshWheel()
 	, SceneWheelCenter()
 	, SceneDamperPointTop()
@@ -38,7 +38,7 @@ USuspensionSide::USuspensionSide()
 	CollisionParams.AddIgnoredActor(this->GetAttachmentRootActor());
 }
 
-void USuspensionSide::Init(const FCommonSuspensionDataPtr& newSuspensionData, bool isLeftSide)
+void USuspensionBlockComponent::Init(const FCommonSuspensionDataPtr& newSuspensionData, bool isLeftSide)
 {
 	bIsLeft = isLeftSide;
 	Data = newSuspensionData;
@@ -47,7 +47,7 @@ void USuspensionSide::Init(const FCommonSuspensionDataPtr& newSuspensionData, bo
 	MinDamperLength = Data->RelaxDamperLength - Data->DamperMove;
 }
 
-void USuspensionSide::BeginPlay()
+void USuspensionBlockComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -68,18 +68,18 @@ void USuspensionSide::BeginPlay()
 	SceneWheelCenter->SetRelativeLocation(PosWheelCenter);
 }
 
-void USuspensionSide::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void USuspensionBlockComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	UpdateSuspension(DeltaTime);
 }
 
-void USuspensionSide::TurnWheel(float Angle)
+void USuspensionBlockComponent::TurnWheel(float Angle)
 {
 	SceneDamperPointBot->SetRelativeRotation({0.0f, Angle, 0.0f});
 }
 
-void USuspensionSide::UpdateSuspension(float DeltaTime)
+void USuspensionBlockComponent::UpdateSuspension(float DeltaTime)
 {
 	//rays cast
 	const auto& WheelCenterLoc = SceneWheelCenter->GetComponentLocation();
@@ -94,10 +94,10 @@ void USuspensionSide::UpdateSuspension(float DeltaTime)
 		FHitResult OutHit;
 		for (float Angle = -75.0f; Angle <= 75.0f; Angle += 15.0f)
 		{
-			FRotator rotator{ 0.0f, 0.0f, Angle };
+			FRotator Rotator( 0.0f, 0.0f, Angle );
 
-			const auto& vecToStart = (WheelCenterRot + rotator).RotateVector(FVector::DownVector);
-			const auto& StartPoint = TopPoint + vecToStart * (Data->WheelRadius);
+			const auto& VecToStart = (WheelCenterRot + Rotator).RotateVector(FVector::DownVector);
+			const auto& StartPoint = TopPoint + VecToStart * (Data->WheelRadius);
 			const auto& EndPoint = StartPoint + VecToWheelTop * -(Data->WheelRadius + Data->DamperMove);
 
 			bool bIsHit = GetWorld()->LineTraceSingleByChannel(OutHit, StartPoint, EndPoint, ECC_WorldStatic, CollisionParams);
@@ -117,11 +117,11 @@ void USuspensionSide::UpdateSuspension(float DeltaTime)
 
 	//calc damper motion length
 	float MaxMotionLength = MaxDamperLength - CurrDamperLength;
-	float minMotionLength = MinDamperLength - CurrDamperLength;
+	float MinMotionLength = MinDamperLength - CurrDamperLength;
 	if (bIsAnyHit)
 	{
-		MaxMotionLength = FMath::Max(HitDistance - Data->WheelRadius, minMotionLength);
-		tools::DubugPoint(GetWorld(), HitPos, FColor::Red, "hitPos");
+		MaxMotionLength = FMath::Max(HitDistance - Data->WheelRadius, MinMotionLength);
+		tools::DebugPoint(GetWorld(), HitPos, FColor::Red, "hitPos");
 	}
 	bool bIsWeelFree = (MaxMotionLength > 0.0f || !bIsAnyHit || HitDistance > Data->WheelRadius);
 
@@ -135,7 +135,7 @@ void USuspensionSide::UpdateSuspension(float DeltaTime)
 				bIsWeelFree = false;
 			}
 		} else {//compression
-			if (MotionLength < minMotionLength) MotionLength = minMotionLength;
+			if (MotionLength < MinMotionLength) MotionLength = MinMotionLength;
 		}
 	}
 	else {
@@ -172,29 +172,27 @@ void USuspensionSide::UpdateSuspension(float DeltaTime)
 	MeshWheel->AddRelativeRotation({ 0.0f, 0.0f, WheelSpinVelocity * DeltaTime });
 
 	//Debug output
-	tools::DubugPoint(GetWorld(), SceneDamperPointBot->GetComponentLocation(), FColor::Green, "damper bot");
-	tools::DubugPoint(GetWorld(), SceneDamperPointTop->GetComponentLocation(), FColor::Green, "damper top");
-	tools::DubugPointOnScreen(GetWorld(), WheelCenterLoc, FColor::Green, "wheel center");
+	tools::DebugPoint(GetWorld(), SceneDamperPointBot->GetComponentLocation(), FColor::Green, "damper bot");
+	tools::DebugPoint(GetWorld(), SceneDamperPointTop->GetComponentLocation(), FColor::Green, "damper top");
+	tools::DebugPointOnScreen(GetWorld(), WheelCenterLoc, FColor::Green, "wheel center");
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, FColor::Purple, this->GetName());
 	}
 }
 
-void USuspensionSide::UpdateForceOnWheel(float suspensionForces, float deltaTime)
-{
-	FVector FrictionForceVec;
-	auto TrWheelCenter = SceneWheelCenter->GetComponentTransform();
-	auto HitPos = SceneWheelCenter->GetComponentLocation();
+void USuspensionBlockComponent::UpdateForceOnWheel(float suspensionForces, float deltaTime)
+{	
+	FTransform TrWheelCenter = SceneWheelCenter->GetComponentTransform();
+	FVector HitPos = SceneWheelCenter->GetComponentLocation();
 	FVector VelocityAtHitPoint = MeshWheel->GetPhysicsLinearVelocityAtPoint(HitPos);
 	VelocityAtHitPoint = TrWheelCenter.GetRotation().UnrotateVector(VelocityAtHitPoint);
 
-	//update frictio force
-	float FrictioForce = VelocityAtHitPoint.X * Data->FrictionKof * SuspensionForce;
-	float MaxFrictioForce = VelocityAtHitPoint.X * Data->CommonMass;
-	if (abs(FrictioForce) > abs(MaxFrictioForce)) FrictioForce = MaxFrictioForce;
-	FrictionForceVec = { -FrictioForce, 0.0f, 0.0f };
-	FrictionForceVec = TrWheelCenter.GetRotation().RotateVector(FrictionForceVec);
+	//update friction force
+	float FrictionForce = VelocityAtHitPoint.X * Data->FrictionKof * SuspensionForce;
+	float MaxFrictionForce = VelocityAtHitPoint.X * Data->CommonMass;
+	if (abs(FrictionForce) > abs(MaxFrictionForce)) FrictionForce = MaxFrictionForce;
+	FVector FrictionForceVec = TrWheelCenter.GetRotation().RotateVector(FVector( -FrictionForce, 0.0f, 0.0f ));
 	Data->AddForceAtBody(FrictionForceVec, HitPos, NAME_None);
 
 	//update wheel spin
