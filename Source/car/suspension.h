@@ -9,22 +9,22 @@
 
 UCLASS( ClassGroup = (Custom) )
 class CAR_API USuspension : public USceneComponent
-{	
+{
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	USuspension();
 	void Init(float Mass, const FFuncForce& FuncAddForceAtbody);
 protected:
 	// Called when the game starts
 	void BeginPlay() override;
-	
+
 public:
 	// Called every frame
-	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;		
+	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void TurnWheel(float Axis);	
+	void TurnWheel(float Axis);
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		float TrackWidth;
@@ -50,7 +50,7 @@ protected:
 		float FrictionKof;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
-		USuspensionSide* LeftBlock;	
+		USuspensionSide* LeftBlock;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension data")
 		USuspensionSide* RightBlock;
 private:

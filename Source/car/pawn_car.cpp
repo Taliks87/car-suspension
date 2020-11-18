@@ -13,18 +13,18 @@ APawnCar::APawnCar()
 	, FrontSuspensions()
 	, RearSuspensions()
 	, SpringArm()
-	, Camera()	
+	, Camera()
 {
  	PrimaryActorTick.bCanEverTick = true;
-	MeshBody = CreateDefaultSubobject<UStaticMeshComponent>("mesh_body");		
+	MeshBody = CreateDefaultSubobject<UStaticMeshComponent>("mesh_body");
 	FrontSuspensions = CreateDefaultSubobject<USuspension>("front_suspension");
 	RearSuspensions = CreateDefaultSubobject<USuspension>("rear_suspension");
-		
+
 	RootComponent = MeshBody;
 	MeshBody->SetSimulatePhysics(true);
 	FrontSuspensions->SetupAttachment(MeshBody);
-	RearSuspensions->SetupAttachment(MeshBody);	
-	
+	RearSuspensions->SetupAttachment(MeshBody);
+
 	FrontSuspensions->SetRelativeLocation({ 0.0f, -1800.0f, -730.0f });
 	RearSuspensions->SetRelativeLocation({ 0.0f, 1950.0f, -730.0f });
 
@@ -34,7 +34,7 @@ APawnCar::APawnCar()
 	SpringArm->TargetArmLength = 4000.0f;
 	SpringArm->SetupAttachment(MeshBody);
 	Camera->SetupAttachment(SpringArm);
-	
+
 	SpringArm->bEnableCameraLag = true;
 	SpringArm->CameraLagSpeed = 6.0f;
 	SpringArm->bDrawDebugLagMarkers = true;
@@ -42,26 +42,26 @@ APawnCar::APawnCar()
 }
 
 void APawnCar::BeginPlay()
-{	
-	MeshBody->SetMassOverrideInKg(NAME_None, Mass);	
+{
+	MeshBody->SetMassOverrideInKg(NAME_None, Mass);
 	MeshBody->SetCenterOfMass(WeightDistribution);
 	auto FuncAddForceAtbody = std::bind(&UStaticMeshComponent::AddForceAtLocation, MeshBody, std::placeholders::_1, std::placeholders::_2, NAME_None);
 	FrontSuspensions->Init(Mass, FuncAddForceAtbody);
 	RearSuspensions->Init(Mass, FuncAddForceAtbody);
-	Super::BeginPlay();		
+	Super::BeginPlay();
 }
 
 void APawnCar::Tick(float DeltaTime)
-{	
-	GEngine->ClearOnScreenDebugMessages();	
+{
+	GEngine->ClearOnScreenDebugMessages();
 	Super::Tick(DeltaTime);
 
-	SpringArm->AddRelativeRotation({ CameraAxis.Y, CameraAxis.X, 0.0f });	
+	SpringArm->AddRelativeRotation({ CameraAxis.Y, CameraAxis.X, 0.0f });
 }
 
 void APawnCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{	
-	Super::SetupPlayerInputComponent(PlayerInputComponent);	
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	InputComponent->BindAction("cam_move_front", IE_Pressed, this, &APawnCar::CamMoveFront);
 	InputComponent->BindAction("cam_move_back", IE_Pressed, this, &APawnCar::CamMoveBack);
 	InputComponent->BindAxis("turn_left", this, &APawnCar::TurnWheel);
@@ -79,9 +79,9 @@ void APawnCar::TurnWheel(float axis)
 }
 
 void APawnCar::MoveCar(float axis)
-{	
+{
 	//simple move
-	FVector MoveVec = GetActorRotation().RotateVector({ 0.0f, -1000.0f * axis, 0.0f });	
+	FVector MoveVec = GetActorRotation().RotateVector({ 0.0f, -1000.0f * axis, 0.0f });
 	MeshBody->AddForce(MoveVec, NAME_None, true);
 }
 

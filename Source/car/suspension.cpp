@@ -27,26 +27,26 @@ USuspension::USuspension()
 	, RightBlock()
 	, MaxTurnAngle(45.0f)
 	, CurrTurnAngle(0.0f)
-{	
+{
 	PrimaryComponentTick.bCanEverTick = true;
 	LeftBlock = CreateDefaultSubobject<USuspensionSide>("leftBlock");
-	RightBlock = CreateDefaultSubobject<USuspensionSide>("rightBlock");	
+	RightBlock = CreateDefaultSubobject<USuspensionSide>("rightBlock");
 	LeftBlock->SetupAttachment(this);
 	RightBlock->SetupAttachment(this);
 }
 
 void USuspension::BeginPlay()
-{	
-	Super::BeginPlay();				
+{
+	Super::BeginPlay();
 	//set block pos
 	float HalfTrackWidth = TrackWidth / 2.0f;
 	FVector LeftBlockPos = GetRelativeTransform().GetLocation();
 	LeftBlockPos.X -= HalfTrackWidth;
 	LeftBlock->SetRelativeLocation({ -HalfTrackWidth, 0.0f, 0.0f });
 
-	FVector RightBlockPos = GetRelativeTransform().GetLocation();	
+	FVector RightBlockPos = GetRelativeTransform().GetLocation();
 	RightBlockPos.X -= HalfTrackWidth;
-	RightBlock->SetRelativeLocation({ HalfTrackWidth, 0.0f, 0.0f });	
+	RightBlock->SetRelativeLocation({ HalfTrackWidth, 0.0f, 0.0f });
 }
 
 void USuspension::Init(float mass, const FFuncForce& funcAddForceAtbody)
@@ -58,9 +58,9 @@ void USuspension::Init(float mass, const FFuncForce& funcAddForceAtbody)
 }
 
 void USuspension::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{	
+{
 	tools::DubugPoint(GetWorld(), GetComponentLocation(), FColor::Green, "Suss bar");
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);	
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
 void USuspension::TurnWheel(float Axis)

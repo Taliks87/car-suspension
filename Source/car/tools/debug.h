@@ -2,7 +2,7 @@
 //#ifndef TOOLS_DEBUG_H
 //#define TOOLS_DEBUG_H
 #include "CoreMinimal.h"
-#include "DrawDebugHelpers.h"	
+#include "DrawDebugHelpers.h"
 //#include "Engine.h"
 
 namespace tools
@@ -19,7 +19,7 @@ namespace tools
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 1.f, color, text + " " + pos.ToString());
-		}		
+		}
 	}
 }
 //#endif // TOOLS_DEBUG_H
